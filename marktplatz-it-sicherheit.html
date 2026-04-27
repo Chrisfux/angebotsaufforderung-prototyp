@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marktplatz IT-Sicherheit – Prototyp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --surface:#ffffff;
+      --surface-soft:#fafbfd;
+      --border:#dfe5eb;
+      --text:#33383f;
+      --muted:#74808a;
+      --blue:#6b879f;
+      --blue-dark:#547087;
+      --blue-light:#adc0d0;
+      --red:#9b1d47;
+      --red-dark:#7e1539;
+      --red-soft:#f7edf1;
+      --shadow:0 8px 22px rgba(43,58,70,.07);
+      --container:1280px;
+      --radius:3px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:'Source Sans 3',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
+    a{text-decoration:none;color:inherit}
+    button,input,select,textarea{font:inherit}
+
+    .topbar{background:#fff;border-bottom:1px solid #e7ebef;position:sticky;top:0;z-index:50}
+    .topbar-inner{max-width:1510px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:18px}
+    .brand img{height:34px;display:block}
+    .brand-fallback{display:flex;flex-direction:column;line-height:1}
+    .brand-fallback strong{background:var(--red);color:#fff;padding:6px 10px;border-radius:2px;font-size:20px;font-weight:800;display:inline-block}
+    .brand-fallback span{color:var(--blue);font-size:12px;font-weight:700;margin-top:3px}
+    .nav{display:flex;gap:20px;align-items:center;font-size:15px;color:#363e45;flex:1}
+    .nav a{padding:8px 0;position:relative;white-space:nowrap}
+    .nav a.active{color:var(--red);font-weight:700}
+    .nav a.active:after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:2px;background:var(--red)}
+    .top-actions{display:flex;align-items:center;gap:14px;margin-left:auto}
+    .search{width:295px;background:#f4f6f8;border:1px solid #eef1f4;color:#9aa3ab;padding:8px 12px;font-size:15px}
+    .icon-btn{width:18px;height:18px;border-radius:50%;border:none;background:transparent;color:#6a7680;font-size:16px;display:grid;place-items:center}
+
+    .page{display:none}
+    .page.active{display:block}
+    .container{max-width:var(--container);margin:0 auto;padding:0 18px}
+
+    .hero-wrap{background:#fff;padding:28px 0 24px;border-bottom:1px solid #ecf0f3}
+    .breadcrumbs{font-size:13px;color:#8a97a2;text-transform:uppercase;letter-spacing:.2px;margin:2px 0 16px}
+    .hero-grid{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center}
+    .circle-icon{width:190px;height:190px;border-radius:50%;background:linear-gradient(135deg,var(--blue-light) 0 69%,var(--blue) 69% 100%);display:grid;place-items:center}
+    .circle-icon svg{width:118px;height:118px}
+    .hero-title{font-size:60px;line-height:.96;color:var(--blue);font-weight:800;margin:0}
+    .hero-title .accent{color:var(--red)}
+    .hero-sub{font-size:22px;color:#49515a;margin-top:10px}
+
+    .directory-shell{padding:24px 0 52px}
+    .toolbar{background:#fff;border:1px solid var(--border);display:grid;grid-template-columns:1.6fr 1fr 190px 96px;gap:0;align-items:center;box-shadow:var(--shadow)}
+    .toolbar .tool-cell{padding:13px 14px;border-right:1px solid #edf1f4;color:#99a2aa;font-size:15px}
+    .toolbar .tool-cell:last-child{border-right:none}
+    .toolbar input, .toolbar select{width:100%;border:1px solid #dfe5eb;background:#fff;color:#49515a;padding:10px 11px;font:inherit;border-radius:4px;outline:none}
+    .toolbar input:focus, .toolbar select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.1)}
+    .toolbar .button-search{background:var(--red);color:#fff;font-weight:700;text-align:center;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .toolbar .tool-select{color:#555;display:flex;justify-content:space-between;align-items:center}
+
+    .directory-layout{display:grid;grid-template-columns:310px 1fr;gap:16px;margin-top:18px}
+    .filter-panel{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow)}
+    .filter-head{padding:14px 18px;border-bottom:1px solid #eef2f5;font-weight:700;font-size:30px;display:flex;align-items:center;gap:10px}
+    .filter-head small{font-size:16px;font-weight:700}
+    .filter-section{padding:14px 18px;border-bottom:1px solid #eef2f5}
+    .filter-title{font-size:17px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+    .filter-search{width:100%;border:1px solid #dfe5eb;padding:9px 10px;color:#8d98a2;background:#fff;margin-bottom:12px}
+    .check-list{display:grid;gap:9px}
+    .check-row{display:grid;grid-template-columns:18px 1fr auto;align-items:start;gap:9px;font-size:15px;color:#5a6670}
+    .check-row input{margin-top:3px}
+    .check-row .count{color:#adb5bd;font-size:13px}
+    .muted-link{color:var(--red);font-size:14px;margin-top:8px;display:inline-block}
+    .collapsed{padding:14px 18px;border-bottom:1px solid #eef2f5;font-size:17px;font-weight:700;display:flex;justify-content:space-between;color:#434c55}
+
+    .results-top{display:flex;justify-content:space-between;align-items:center;margin:2px 0 10px}
+    .results-title{font-size:15px;color:#8d99a3}
+    .results-title strong{font-size:31px;color:#363d43;margin-right:8px}
+    .results-sort{display:flex;align-items:center;gap:10px;color:#808a92;font-size:14px}
+    .results-sort select{border:1px solid #dfe5eb;padding:6px 8px;background:#fff;color:#555}
+
+    .selection-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);gap:16px;position:sticky;top:62px;z-index:10}
+    .selection-bar strong{color:#3e4750}
+    .selection-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;border-radius:2px;padding:11px 15px;font-weight:700;cursor:pointer}
+    .btn-primary{background:var(--red);color:#fff}
+    .btn-primary:hover{background:var(--red-dark)}
+    .btn-secondary{background:#ecf1f5;color:#40505e}
+    .btn-ghost{background:#fff;border:1px solid #d8e0e7;color:#5b6873}
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .provider-card{background:#fff;border:1px solid #dbe3ea;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:330px}
+    .provider-top{position:relative;height:118px;background:#eef3f7}
+    .provider-top.pattern{background:
+      radial-gradient(circle at 18% 22%, rgba(190,195,201,.55) 0 10px, transparent 11px),
+      radial-gradient(circle at 18% 22%, rgba(190,195,201,.55) 0 18px, transparent 19px),
+      radial-gradient(circle at 48% 22%, rgba(190,195,201,.45) 0 8px, transparent 9px),
+      radial-gradient(circle at 48% 22%, rgba(190,195,201,.45) 0 16px, transparent 17px),
+      radial-gradient(circle at 70% 55%, rgba(190,195,201,.42) 0 16px, transparent 17px),
+      radial-gradient(circle at 70% 55%, rgba(190,195,201,.42) 0 33px, transparent 34px),
+      radial-gradient(circle at 88% 24%, rgba(190,195,201,.42) 0 10px, transparent 11px),
+      radial-gradient(circle at 88% 24%, rgba(190,195,201,.42) 0 21px, transparent 22px),
+      radial-gradient(circle at 20% 80%, rgba(190,195,201,.42) 0 15px, transparent 16px),
+      radial-gradient(circle at 20% 80%, rgba(190,195,201,.42) 0 30px, transparent 31px),
+      radial-gradient(circle at 50% 100%, rgba(190,195,201,.38) 0 55px, transparent 56px),
+      radial-gradient(circle at 50% 100%, rgba(190,195,201,.38) 0 110px, transparent 111px),
+      #fff;
+      background-repeat:no-repeat;
+    }
+    .provider-top.cover-blue{background:linear-gradient(130deg,#1f5f9e 0%,#4fa4d9 55%,#15324e 100%)}
+    .provider-top.cover-dark{background:linear-gradient(135deg,#1f252a 0%,#172225 55%,#2d8748 100%)}
+    .provider-top.cover-purple{background:linear-gradient(90deg,#5a3eaf 0%,#6242b6 55%,#473598 100%)}
+    .provider-top.cover-tech{background:linear-gradient(135deg,#031a2d 0%,#1e77b3 50%,#56b0ff 100%)}
+    .provider-top.cover-red{background:#fff}
+    .top-art{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:flex-start;padding:10px 12px;color:#fff;font-weight:800;font-size:18px;letter-spacing:.2px}
+    .top-art.small{font-size:16px}
+    .top-art.red-logo{color:#b01f2d;font-size:54px;line-height:1;font-weight:800;padding-top:8px}
+    .badge{position:absolute;top:8px;right:10px;border-radius:999px;padding:4px 10px;font-size:13px;color:#fff;font-weight:700}
+    .provider-logo{position:relative;z-index:2;width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.12);margin-top:-26px;display:grid;place-items:center;font-weight:800;color:#8c1f45;font-size:14px;overflow:hidden}
+    .badge.plus{background:#b02c56}
+    .badge.basis{background:#43484d}
+    .badge.premium{background:#f0c51d;color:#333}
+    .provider-body{padding:0 12px 10px;display:flex;flex-direction:column;flex:1}
+    .provider-logo{width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.12);margin-top:-26px;display:grid;place-items:center;font-weight:800;color:#8c1f45;font-size:14px;overflow:hidden}
+    .provider-logo.blue{color:#2471d5}.provider-logo.black{color:#1f1f1f}.provider-logo.green{color:#2c8d4c}
+    .provider-name{font-size:17px;font-weight:700;margin-top:10px;color:#31373c}
+    .provider-sub{font-size:14px;color:#6f7982;margin-top:4px;min-height:38px}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+    .tag{background:#f0f3f6;color:#6e7680;font-size:12px;padding:4px 7px;border-radius:3px}
+    .location{margin-top:auto;padding-top:11px;font-size:13px;color:#8b949d;border-top:1px solid #edf1f4}
+    .card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-size:13px;color:#99a2ab}
+    .profile-link{color:var(--red);font-weight:700}
+    .selector{display:flex;align-items:center;gap:8px;color:#525e68;font-size:14px;margin-top:10px}
+
+    .offer-page .main-wrap{padding:28px 0 60px}
+    .offer-hero{display:grid;grid-template-columns:190px 1fr 240px;gap:28px;align-items:center;margin-bottom:26px}
+    .offer-cta{justify-self:end;background:var(--red);color:#fff;padding:15px 18px;font-size:18px;font-weight:700;box-shadow:var(--shadow)}
+    .info-strip{background:var(--red);color:#fff;padding:26px 32px;margin:8px 0 30px;box-shadow:var(--shadow)}
+    .info-strip h2{margin:0 0 10px;font-size:37px;line-height:1.05}
+    .info-strip p{margin:0;font-size:18px;max-width:940px;color:rgba(255,255,255,.93)}
+    .layout{display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+    .card{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow)}
+    .section{margin-bottom:24px;overflow:hidden}
+    .section-head{padding:22px 24px 14px;border-bottom:1px solid #edf2f5}
+    .section-kicker{color:var(--red);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+    .section h3{margin:0;font-size:30px;color:#37414a}
+    .section-sub{margin-top:6px;color:var(--muted);font-size:17px}
+    .section-body{padding:22px 24px 26px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    label.label{display:block;font-weight:700;color:#414b53;margin:0 0 7px;font-size:17px}
+    .hint{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+    input[type="text"],textarea,select{width:100%;border:1px solid #d6dee5;background:#fff;min-height:46px;padding:10px 12px;color:var(--text);outline:none}
+    textarea{min-height:130px;resize:vertical}
+    input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.09)}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .chip{border:1px solid #cfdae3;background:#f8fafb;color:#41505c;padding:10px 14px;font-weight:600;font-size:15px;border-radius:999px}
+    .chip.active{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
+    .mini-stat{border:1px solid #dde5eb;background:#fbfcfd;padding:14px}
+    .mini-stat strong{display:block;font-size:14px;color:#5c6771;margin-bottom:8px}
+    .mini-stat input{min-height:42px}
+    .timeline{display:grid;gap:12px}.timeline-item{display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start}
+    .timeline-badge{width:38px;height:38px;border-radius:50%;background:#ecf2f6;color:var(--blue);display:grid;place-items:center;font-weight:800}
+    .timeline-item strong{display:block;font-size:17px;margin-bottom:2px}.timeline-item p{margin:0;color:var(--muted);font-size:15px}
+    .aside-card{padding:22px;margin-bottom:20px}.aside-card h4{margin:0 0 14px;font-size:24px;color:#3a434a}.aside-card p,.aside-card li{color:var(--muted);font-size:16px}.aside-card ul{padding-left:18px;margin:0}
+    .progress{display:grid;gap:10px}.progress-step{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;color:#53606b;font-size:15px}.progress-step span:first-child{width:28px;height:28px;border-radius:50%;background:#edf2f6;color:var(--blue);display:grid;place-items:center;font-weight:800}.progress-step.active span:first-child{background:var(--red);color:#fff}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;padding-top:8px}.footer-note{margin-top:6px;color:#7a8590;font-size:14px}
+    .selected-providers{display:flex;flex-wrap:wrap;gap:10px}
+    .selected-pill{display:flex;align-items:center;gap:8px;border:1px solid #d7dfe6;background:#fbfcfd;padding:10px 12px;border-radius:999px;color:#44525d;font-weight:600}
+    .selected-pill button{border:none;background:#ebeff3;color:#5f6b75;border-radius:50%;width:24px;height:24px;cursor:pointer}
+    .inline-empty{padding:14px 16px;background:#fafbfc;border:1px dashed #d8dfe6;color:#7b8893}
+
+    @media (max-width:1220px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .layout{grid-template-columns:1fr}
+      .offer-hero{grid-template-columns:160px 1fr}
+      .offer-cta{grid-column:1/-1;justify-self:start}
+    }
+    @media (max-width:960px){
+      .hero-grid,.offer-hero{grid-template-columns:1fr}
+      .circle-icon{width:150px;height:150px}
+      .hero-title{font-size:44px}
+      .directory-layout{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+      .toolbar .tool-cell,.toolbar .button-search{border-right:none;border-top:1px solid #edf1f4}
+      .toolbar .tool-cell:first-child{border-top:none}
+      .selection-bar{position:static;flex-direction:column;align-items:flex-start}
+      .grid-4{grid-template-columns:1fr 1fr}
+      .topbar-inner{flex-wrap:wrap}
+      .nav{order:3;width:100%;overflow:auto}
+      .search{width:100%}
+    }
+    @media (max-width:680px){
+      .cards,.grid-2,.grid-4{grid-template-columns:1fr}
+      .container{padding:0 12px}
+      .hero-wrap{padding-top:18px}
+      .section-head,.section-body,.aside-card,.info-strip{padding-left:18px;padding-right:18px}
+      .results-title strong{font-size:22px;display:block}
+      .results-top{align-items:flex-start;gap:10px;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#home" class="brand" data-nav="home">
+        <img src="logo_marktplatz.png" alt="it-sicherheit.de Logo">
+      </a>
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a href="#home" data-nav="home">Startseite</a>
+        <a href="#directory" data-nav="directory" class="active">Anbieterverzeichnis</a>
+        <a href="#offer" data-nav="offer">Angebotsaufforderung</a>
+        <a href="#">Beiträge</a>
+        <a href="#">Ratgeber</a>
+        <a href="#">Forum</a>
+        <a href="#">Veranstaltungen</a>
+        <a href="#">secIT 2026</a>
+      </nav>
+      <div class="top-actions">
+        <div class="search">Suche...</div>
+        <button class="icon-btn" aria-label="Konto">◉</button>
+        <button class="icon-btn" aria-label="Sprache">◌</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page directory-page active" id="page-directory">
+    <div class="hero-wrap">
+      <div class="container">
+        <div class="breadcrumbs">Startseite » Anbieterverzeichnis</div>
+        <div class="hero-grid">
+          <div class="circle-icon" aria-hidden="true">
+            <svg viewBox="0 0 120 120" fill="none">
+              <path d="M60 20c-15.4 0-28 12.6-28 28 0 22 28 52 28 52s28-30 28-52c0-15.4-12.6-28-28-28Z" fill="#9b1d47"/>
+              <circle cx="60" cy="48" r="13" fill="#fff"/>
+              <circle cx="24" cy="55" r="11" stroke="#fff" stroke-width="8"/>
+              <circle cx="96" cy="55" r="11" stroke="#fff" stroke-width="8"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="hero-title">Anbieterverzeichnis</h1>
+            <div class="hero-sub">Hier finden Sie IT-Sicherheitsanbieter &amp; Lösungen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="directory-shell">
+      <div class="container">
+        <div class="toolbar">
+          <div class="tool-cell"><input id="globalSearch" type="text" placeholder="🔎 Anbieter, Lösung oder anderen Suchbegriff eingeben..." /></div>
+          <div class="tool-cell"><input id="locationSearch" type="text" placeholder="📍 Geben Sie eine Umgebung an" /></div>
+          <div class="tool-cell tool-select"><label for="radiusSelect">Umkreis</label><select id="radiusSelect"><option value="0">Alle</option><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="100">100 km</option></select></div>
+          <div class="button-search" id="runSearch">Suche</div>
+        </div>
+
+        <div class="directory-layout">
+          <aside class="filter-panel">
+            <div class="filter-head">≡ <small>Filter</small></div>
+            <div class="filter-section">
+              <div class="filter-title">IT-Sicherheitsschwerpunkte <span>⌃</span></div>
+              <input class="filter-search" type="text" placeholder="Schwerpunkt suchen...">
+              <div class="check-list">
+                <label class="check-row"><input type="checkbox" class="filter-focus" value="Cybersicherheit"><span>Cybersicherheit</span><span class="count">(117)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-focus" value="IT-Sicherheit"><span>IT-Sicherheit</span><span class="count">(109)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-focus" value="Beratung"><span>Beratung</span><span class="count">(109)</span></label>
+              </div>
+              <a class="muted-link" href="#">mehr anzeigen (148)</a>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Bediente Branche <span>⌃</span></div>
+              <div class="check-list">
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Automobilindustrie"><span>Automobilindustrie</span><span class="count">(149)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Energie, Versorgung und Entsorgung"><span>Energie, Versorgung und Entsorgung</span><span class="count">(164)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Finanz- und Versicherungswesen"><span>Finanz- und Versicherungswesen</span><span class="count">(151)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Gesundheitswesen"><span>Gesundheitswesen</span><span class="count">(161)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Handel und Dienstleistungen"><span>Handel und Dienstleistungen</span><span class="count">(155)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="IT und Telekommunikation"><span>IT und Telekommunikation</span><span class="count">(162)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="KRITIS"><span>KRITIS</span><span class="count">(158)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Öffentliche Verwaltung"><span>Öffentliche Verwaltung</span><span class="count">(153)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-industry" value="Weitere Branchen"><span>Weitere Branchen</span><span class="count">(131)</span></label>
+              </div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Unternehmenskategorie <span>⌃</span></div>
+              <div class="check-list">
+                <label class="check-row"><input type="checkbox"><span>KMUs</span><span class="count">(180)</span></label>
+                <label class="check-row"><input type="checkbox"><span>Großunternehmen</span><span class="count">(171)</span></label>
+                <label class="check-row"><input type="checkbox"><span>Behörden</span><span class="count">(157)</span></label>
+                <label class="check-row"><input type="checkbox"><span>Kleinstunternehmen</span><span class="count">(102)</span></label>
+              </div>
+            </div>
+            <div class="collapsed">Interaktive Liste <span>⌄</span></div>
+            <div class="collapsed">Organisationstyp <span>⌄</span></div>
+            <div class="collapsed">Angebotener Service <span>⌄</span></div>
+            <div class="collapsed">Anzahl Mitarbeiter:innen <span>⌄</span></div>
+          </aside>
+
+          <section>
+            <div class="results-top">
+              <div class="results-title"><strong id="resultCount">9 Anbieter gefunden</strong> <span>(Seite 1 von 1)</span></div>
+              <div class="results-sort">Sortieren nach: <select><option>Standard (zufällig)</option></select></div>
+            </div>
+
+            <div class="selection-bar">
+              <div><strong id="selectionText">0 Anbieter ausgewählt</strong><br><span style="color:#7f8a94;font-size:14px">Gefilterte Anbieter per Checkbox markieren und anschließend eine Angebotsaufforderung starten.</span></div>
+              <div class="selection-actions">
+                <button class="btn btn-secondary" id="selectVisibleBtn">Gefilterte auswählen</button>
+                <button class="btn btn-ghost" id="clearSelectionBtn">Auswahl leeren</button>
+                <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen</button>
+              </div>
+            </div>
+
+            <div class="cards" id="providerGrid"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page offer-page" id="page-offer">
+    <div class="hero-wrap">
+      <div class="container">
+        <div class="breadcrumbs">Startseite » Anbieterverzeichnis » Angebotsaufforderung</div>
+        <section class="offer-hero" aria-labelledby="page-title">
+          <div class="circle-icon" aria-hidden="true" style="width:190px;height:190px;box-shadow:var(--shadow)">
+            <svg viewBox="0 0 64 64" fill="none">
+              <rect x="12" y="14" width="30" height="36" rx="3" fill="#fff" opacity="0.95"/>
+              <path d="M22 24h14M22 30h14M22 36h10" stroke="#9b1d47" stroke-width="4" stroke-linecap="round"/>
+              <path d="M42 20l10 8v18a4 4 0 0 1-4 4H30" stroke="#9b1d47" stroke-width="4" stroke-linejoin="round"/>
+              <circle cx="45" cy="43" r="8" fill="#9b1d47"/>
+              <path d="M44 39v8M40 43h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="hero-title" id="page-title">Angebotsaufforderung <span class="accent">IT-Sicherheit</span></h1>
+            <p class="hero-sub" style="font-size:20px;max-width:760px">Beschreiben Sie Ihren Bedarf strukturiert, qualifizieren Sie Ihre Anfrage und bringen Sie passende IT-Sicherheitsanbieter direkt in den Dialog.</p>
+          </div>
+          <a class="offer-cta" href="#formular">Jetzt Bedarf einstellen</a>
+        </section>
+      </div>
+    </div>
+
+    <main class="container main-wrap">
+      <section class="info-strip">
+        <h2>Mehr passende Anbieter, weniger Streuverlust</h2>
+        <p>Die Seite bündelt Bedarfserfassung, Qualifizierung, Matching und Angebotsprozess an einem Ort. Anwender mit Account geben ihre Anfrage auf dem Marktplatz ein, Anbieter werden passend zu Themenfeldern und Lösungen zugeordnet und können direkt reagieren. [file:23]</p>
+      </section>
+
+      <div class="layout">
+        <div>
+          <section class="card section" id="selectedCompaniesSection">
+            <div class="section-head">
+              <div class="section-kicker">Ausgewählte Anbieter</div>
+              <h3>Ihre Vorauswahl aus dem Anbieterverzeichnis</h3>
+              <div class="section-sub">Die ausgewählten Unternehmen wurden aus dem Verzeichnis übernommen und können hier wieder entfernt werden.</div>
+            </div>
+            <div class="section-body">
+              <div id="selectedProvidersContainer" class="selected-providers"></div>
+            </div>
+          </section>
+
+          <section class="card section" id="formular">
+            <div class="section-head">
+              <div class="section-kicker">Schritt 1</div>
+              <h3>Bedarf beschreiben</h3>
+              <div class="section-sub">Erfassen Sie, was Sie angeboten bekommen möchten und worum es fachlich geht. [file:23]</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:18px;">
+                <label class="label" for="bedarf">Beschreiben Sie klar, was Sie angeboten bekommen möchten</label>
+                <textarea id="bedarf" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="label" for="themenfeld">Um welches Themenfeld im Bereich IT-Sicherheit geht es?</label>
+                  <input id="themenfeld" type="text" placeholder="Freitext oder Operbegriffe ergänzen" />
+                  <div class="chips">
+                    <span class="chip active">Cybersecurity</span>
+                    <span class="chip">Awareness</span>
+                    <span class="chip active">BSI-Grundschutz</span>
+                    <span class="chip">Netzwerksicherheit</span>
+                    <span class="chip">Compliance</span>
+                    <span class="chip">SOC</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="label" for="hauptziel">Was ist Ihr Hauptziel?</label>
+                  <input id="hauptziel" type="text" placeholder="Optionales Freitextfeld ergänzen" />
+                  <div class="chips">
+                    <span class="chip active">Sicherheitslücken finden</span>
+                    <span class="chip">Compliance erfüllen</span>
+                    <span class="chip active">Angriffe erkennen/verhindern</span>
+                    <span class="chip">Sicherheitsniveau verbessern</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section">
+            <div class="section-head">
+              <div class="section-kicker">Schritt 2</div>
+              <h3>Scope und Systemlandschaft</h3>
+              <div class="section-sub">Die Anforderungen nennen ausdrücklich Systeme, Komplexität und Technologie-Stack als Qualifizierungsdaten. [file:23]</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:18px;">
+                <label class="label" for="systeme">Welche IT-Systeme haben Sie im Einsatz?</label>
+                <textarea id="systeme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
+              </div>
+              <div class="grid-4" style="margin-bottom:18px;">
+                <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input type="text" placeholder="z. B. 45" /></div>
+                <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input type="text" placeholder="z. B. 320" /></div>
+                <div class="mini-stat"><strong>Anzahl der Standorte</strong><input type="text" placeholder="z. B. 5" /></div>
+                <div class="mini-stat"><strong>Branche</strong><input type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
+              </div>
+              <div>
+                <label class="label" for="stack">Technologie-Stack</label>
+                <textarea id="stack" placeholder="MS, Linux, Apple, Cloud-Dienste, Netzwerk- und Security-Tools ..."></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section">
+            <div class="section-head">
+              <div class="section-kicker">Schritt 3</div>
+              <h3>Rahmenbedingungen</h3>
+              <div class="section-sub">Budget, Projektstart, Entscheiderstatus, Vergabeprozess und Prioritäten sind als feste Felder im Anforderungsdokument genannt. [file:23]</div>
+            </div>
+            <div class="section-body">
+              <div class="grid-2" style="margin-bottom:18px;">
+                <div>
+                  <label class="label">Budget</label>
+                  <div class="chips"><span class="chip">&lt; 10k</span><span class="chip active">10–50k</span><span class="chip">50–100k</span><span class="chip">100k+</span></div>
+                  <span class="hint">Nur eine Auswahl vorgesehen. [file:23]</span>
+                </div>
+                <div>
+                  <label class="label">Projektstart</label>
+                  <div class="chips"><span class="chip active">Sofort</span><span class="chip">&lt; 1 Monat</span><span class="chip">1–3 Monate</span><span class="chip">4 Monate+</span></div>
+                  <span class="hint">Nur eine Auswahl vorgesehen. [file:23]</span>
+                </div>
+                <div>
+                  <label class="label">Sind Sie Entscheider?</label>
+                  <div class="chips"><span class="chip active">Ja</span><span class="chip">Teilweise</span><span class="chip">Nein</span></div>
+                </div>
+                <div>
+                  <label class="label">Vergabeprozess</label>
+                  <div class="chips"><span class="chip active">Direkte Beauftragung möglich</span><span class="chip">Mehrere Angebote geplant</span><span class="chip">Formale Ausschreibung</span></div>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="label">Worauf legen Sie Wert?</label>
+                  <div class="chips"><span class="chip active">Preis</span><span class="chip active">Qualität</span><span class="chip">Geschwindigkeit</span><span class="chip active">Erfahrung</span></div>
+                  <span class="hint">Mehrfachauswahl vorgesehen. [file:23]</span>
+                </div>
+                <div>
+                  <label class="label" for="hinweis">Weitere Hinweise</label>
+                  <textarea id="hinweis" placeholder="Spezielle Anforderungen, Compliance-Vorgaben, Fristen, Rahmenverträge, Voranbieter, Sprachen ..."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section">
+            <div class="section-head">
+              <div class="section-kicker">Schritt 4</div>
+              <h3>Veröffentlichung und Matching</h3>
+              <div class="section-sub">Die Angebotsaufforderung liegt auf dem Marktplatz; Anbieter-Matching und spätere Angebotsabgabe sollen nachvollziehbar sein. [file:23]</div>
+            </div>
+            <div class="section-body">
+              <div class="timeline">
+                <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Bedarf einstellen</strong><p>Der Anwender beschreibt und qualifiziert die Anfrage über dieses Formular. [file:23]</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Matching mit Anbietern</strong><p>Zuordnung anhand von IT-Sicherheitsschwerpunkten und IT-Lösungen auf dem Marktplatz. [file:23]</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Weiterleitung und Kontakt</strong><p>Anbieter können per Plattform, E-Mail oder Chat reagieren und mit dem Anwender in Verbindung treten. [file:23]</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">4</div><div><strong>Angebote und Tracking</strong><p>Die Anforderungen nennen die Nachverfolgung von Aufrufen, Downloads und Angebotsansichten als gewünschte Plattformfunktion. [file:23]</p></div></div>
+              </div>
+              <div class="actions">
+                <a href="#" class="btn btn-primary">Angebotsaufforderung veröffentlichen</a>
+                <a href="#" class="btn btn-secondary">Entwurf speichern</a>
+              </div>
+              <div class="footer-note">Prototypischer CTA-Block für den späteren Übergang in den Angebotsprozess.</div>
+            </div>
+          </section>
+        </div>
+
+        <aside>
+          <section class="card aside-card">
+            <h4>Ablauf auf einen Blick</h4>
+            <div class="progress">
+              <div class="progress-step active"><span>1</span><span>Bedarf beschreiben</span></div>
+              <div class="progress-step"><span>2</span><span>Anfrage qualifizieren</span></div>
+              <div class="progress-step"><span>3</span><span>Matching mit Anbietern</span></div>
+              <div class="progress-step"><span>4</span><span>Weiterleitung an Anbieter</span></div>
+              <div class="progress-step"><span>5</span><span>Angebote erhalten</span></div>
+              <div class="progress-step"><span>6</span><span>In Kontakt treten</span></div>
+            </div>
+          </section>
+
+          <section class="card aside-card">
+            <h4>Profilinformationen</h4>
+            <p>Ein Anwender-Account wird als Randbedingung genannt, um mehr Vertrauenswürdigkeit zu schaffen; einzelne Angaben wie Branche sollen direkt aus dem Profil übernommen werden können. [file:23]</p>
+            <ul>
+              <li>Unternehmen / Organisation</li>
+              <li>Branche</li>
+              <li>Ansprechpartner</li>
+              <li>Kontaktwege für Rückfragen</li>
+            </ul>
+          </section>
+
+          <section class="card aside-card">
+            <h4>Kontaktkanäle</h4>
+            <p>Im Konzept sind E-Mail, Telefon und das Chat-System als mögliche Verbindungswege zwischen Anwendern und Anbietern vorgesehen. [file:23]</p>
+            <ul>
+              <li>E-Mail-Benachrichtigung</li>
+              <li>Direkter Telefonkontakt</li>
+              <li>Nachrichten über den Plattform-Chat</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </section>
+
+  <script>
+    const providers = [
+      {id:'securam',name:'CloudSphere Solutions',city:'Hamburg',industry:['Finanz- und Versicherungswesen','Öffentliche Verwaltung'],focus:['Cybersicherheit','Beratung'],tags:['Beratung IT-Sicherheit'],tier:'basis',logo:'CS',logoClass:'',cover:'pattern',distance:0,sub:'Ganzheitliche Beratung für ISMS, Compliance und Sicherheitsarchitekturen.'},
+      {id:'dacoso',name:'NexaGuard Security',city:'Langen',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Beratung IT-Sicherheit','BSI-Grundschutz','Netzwerk'],tier:'plus',logo:'NG',logoClass:'',cover:'tech',distance:42,sub:'Starke Netze + sichere Daten'},
+      {id:'ifis',name:'DataFort Labs',city:'Gelsenkirchen',industry:['Öffentliche Verwaltung','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['(Fach-)Hochschulen','Authentifizierung','Forschung'],tier:'plus',logo:'DF',logoClass:'',cover:'blue',distance:72,sub:'Vertrauenswürdigkeit und IT-Sicherheit'},
+      {id:'bcom',name:'FortiGate Systems',city:'Neustadt an der Weinstraße',industry:['Automobilindustrie','KRITIS'],focus:['Cybersicherheit','Beratung'],tags:['Awareness','Bedrohungsanalysen','SOC'],tier:'premium',logo:'FG',logoClass:'black',cover:'dark',distance:102,sub:'Cybersecurity Services - 24/7/365 aus Deutschland'},
+      {id:'kiwiko',name:'Veritas Shield AG',city:'Berlin',industry:['Handel und Dienstleistungen','Öffentliche Verwaltung'],focus:['IT-Sicherheit','Beratung'],tags:['Coaching','Strategie'],tier:'plus',logo:'VS',logoClass:'blue',cover:'pattern',distance:275,sub:'Kooperative IT-Sicherheitsberatung für Mittelstand und Verbünde.'},
+      {id:'glueckkanja',name:'Nimbus Cyberworks',city:'Offenbach',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Cloud (Computing) Security','Cyber Security as a Service'],tier:'plus',logo:'NC',logoClass:'blue',cover:'purple',distance:30,sub:'We Manage and Protect Microsoft Ecosystems at Scale'},
+      {id:'bytesnipers',name:'PulseSec Networks',city:'Bremen',industry:['Energie, Versorgung und Entsorgung','KRITIS'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Incident Response','OT Security'],tier:'basis',logo:'PS',logoClass:'black',cover:'blue',distance:300,sub:'Incident Response und Resilienzprogramme für kritische Infrastrukturen.'},
+      {id:'scutis',name:'Aegis Advisory',city:'Rosenheim',industry:['Gesundheitswesen','Öffentliche Verwaltung'],focus:['Beratung'],tags:['Compliance','DSGVO'],tier:'basis',logo:'AA',logoClass:'',cover:'red',distance:75,sub:'Pragmatische Beratung für Audits, Prozesse und regulatorische Sicherheit.'},
+      {id:'link11',name:'Sentinel Xpert',city:'Frankfurt am Main',industry:['Finanz- und Versicherungswesen','IT und Telekommunikation'],focus:['Cybersicherheit','Beratung'],tags:['Applikationssicherheit','Automatisierung','DDoS'],tier:'premium',logo:'SX',logoClass:'green',cover:'dark',distance:45,sub:'EMPOWERING YOUR BUSINESS SECURITY.'}
+    ];
+
+    let selectedIds = [];
+    let currentPage = 'directory';
+
+    const providerGrid = document.getElementById('providerGrid');
+    const resultCount = document.getElementById('resultCount');
+    const selectionText = document.getElementById('selectionText');
+    const selectedProvidersContainer = document.getElementById('selectedProvidersContainer');
+    const globalSearch = document.getElementById('globalSearch');
+    const locationSearch = document.getElementById('locationSearch');
+    const radiusSelect = document.getElementById('radiusSelect');
+
+    function badgeLabel(tier){
+      if(tier === 'premium') return '<span class="badge premium">Premium</span>';
+      if(tier === 'plus') return '<span class="badge plus">Plus</span>';
+      return '<span class="badge basis">Basis</span>';
+    }
+
+    function coverClass(cover){
+      if(cover === 'tech') return 'cover-tech';
+      if(cover === 'blue') return 'cover-blue';
+      if(cover === 'dark') return 'cover-dark';
+      if(cover === 'purple') return 'cover-purple';
+      if(cover === 'red') return 'cover-red';
+      return 'pattern';
+    }
+
+    function topArt(provider){
+      if(provider.id === 'glueckkanja') return '<div class="top-art">Nimbus Cyberworks</div>';
+      if(provider.id === 'link11') return '<div class="top-art small">Sentinel Xpert</div>';
+      if(provider.id === 'scutis') return '<div class="top-art red-logo">Aegis</div>';
+      if(provider.id === 'dacoso') return '<div class="top-art small">NexaGuard</div>';
+      return '';
+    }
+
+    function getActiveFilters(selector){
+      return [...document.querySelectorAll(selector + ':checked')].map(el => el.value);
+    }
+
+    function getFilteredProviders(){
+      const industries = getActiveFilters('.filter-industry');
+      const focuses = getActiveFilters('.filter-focus');
+      const searchTerm = globalSearch?.value.trim().toLowerCase();
+      const locationTerm = locationSearch?.value.trim().toLowerCase();
+      const radius = Number(radiusSelect?.value || 0);
+      return providers.filter(provider => {
+        const industryMatch = industries.length === 0 || industries.some(i => provider.industry.includes(i));
+        const focusMatch = focuses.length === 0 || focuses.some(f => provider.focus.includes(f));
+        const searchMatch = !searchTerm || [provider.name, provider.sub, ...provider.tags, ...provider.industry, ...provider.focus].some(value => value.toLowerCase().includes(searchTerm));
+        const locationMatch = !locationTerm || provider.city.toLowerCase().includes(locationTerm) || provider.industry.some(value => value.toLowerCase().includes(locationTerm));
+        const distanceMatch = radius === 0 || !locationTerm || provider.distance <= radius;
+        return industryMatch && focusMatch && searchMatch && locationMatch && distanceMatch;
+      });
+    }
+
+    function renderProviders(){
+      const filtered = getFilteredProviders();
+      resultCount.textContent = `${filtered.length} Anbieter gefunden`;
+      providerGrid.innerHTML = filtered.map(provider => {
+        const checked = selectedIds.includes(provider.id) ? 'checked' : '';
+        return `
+          <article class="provider-card" data-id="${provider.id}">
+            <div class="provider-top ${coverClass(provider.cover)} ${provider.cover === 'pattern' ? 'pattern' : ''}">
+              ${badgeLabel(provider.tier)}
+              ${topArt(provider)}
+            </div>
+            <div class="provider-body">
+              <div class="provider-logo ${provider.logoClass}">${provider.logo || provider.name.slice(0,2)}</div>
+              <div class="provider-name">${provider.name}</div>
+              <div class="provider-sub">${provider.sub}</div>
+              <div class="tags">${provider.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
+              <label class="selector"><input type="checkbox" class="provider-select" data-id="${provider.id}" ${checked}> Für Angebotsaufforderung auswählen</label>
+              <div class="location">📍 ${provider.city}</div>
+              <div class="card-footer"><span>✉</span><a href="#" class="profile-link">Profil ›</a></div>
+            </div>
+          </article>
+        `;
+      }).join('');
+      bindProviderCheckboxes();
+      updateSelectionBar();
+    }
+
+    function bindProviderCheckboxes(){
+      document.querySelectorAll('.provider-select').forEach(input => {
+        input.addEventListener('change', e => {
+          const id = e.target.dataset.id;
+          if(e.target.checked && !selectedIds.includes(id)) selectedIds.push(id);
+          if(!e.target.checked) selectedIds = selectedIds.filter(item => item !== id);
+          updateSelectionBar();
+        });
+      });
+    }
+
+    function updateSelectionBar(){
+      selectionText.textContent = `${selectedIds.length} Anbieter ausgewählt`;
+      renderSelectedProviders();
+    }
+
+    function renderSelectedProviders(){
+      const selected = providers.filter(provider => selectedIds.includes(provider.id));
+      if(!selectedProvidersContainer) return;
+      if(selected.length === 0){
+        selectedProvidersContainer.innerHTML = '<div class="inline-empty">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.</div>';
+        return;
+      }
+      selectedProvidersContainer.innerHTML = selected.map(provider => `
+        <div class="selected-pill">
+          <span>${provider.name}</span>
+          <button type="button" data-remove="${provider.id}" aria-label="${provider.name} entfernen">×</button>
+        </div>
+      `).join('');
+      selectedProvidersContainer.querySelectorAll('button[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedIds = selectedIds.filter(id => id !== btn.dataset.remove);
+          renderProviders();
+          renderSelectedProviders();
+        });
+      });
+    }
+
+    function showPage(page){
+      currentPage = page;
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      document.getElementById(page === 'offer' ? 'page-offer' : 'page-directory').classList.add('active');
+      document.querySelectorAll('[data-nav]').forEach(link => link.classList.remove('active'));
+      document.querySelectorAll(`[data-nav="${page}"]`).forEach(link => link.classList.add('active'));
+      if(page === 'offer') renderSelectedProviders();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function setupPlaceholderBehavior(input){
+      const original = input.placeholder;
+      input.addEventListener('focus', () => {
+        input.placeholder = '';
+      });
+      input.addEventListener('blur', () => {
+        if(!input.value.trim()) input.placeholder = original;
+      });
+    }
+
+    setupPlaceholderBehavior(globalSearch);
+    setupPlaceholderBehavior(locationSearch);
+
+    document.querySelectorAll('.filter-industry, .filter-focus').forEach(input => input.addEventListener('change', renderProviders));
+    globalSearch.addEventListener('input', renderProviders);
+    locationSearch.addEventListener('input', renderProviders);
+    radiusSelect.addEventListener('change', renderProviders);
+    document.getElementById('runSearch').addEventListener('click', renderProviders);
+
+    document.getElementById('selectVisibleBtn').addEventListener('click', () => {
+      const visibleIds = getFilteredProviders().map(provider => provider.id);
+      selectedIds = [...new Set([...selectedIds, ...visibleIds])];
+      renderProviders();
+    });
+
+    document.getElementById('clearSelectionBtn').addEventListener('click', () => {
+      selectedIds = [];
+      renderProviders();
+    });
+
+    document.getElementById('gotoOfferBtn').addEventListener('click', () => {
+      showPage('offer');
+      location.hash = 'offer';
+    });
+
+    document.querySelectorAll('[data-nav]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = link.dataset.nav;
+        if(target === 'home') {
+          showPage('directory');
+          location.hash = 'directory';
+          return;
+        }
+        showPage(target);
+        location.hash = target;
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      if(location.hash === '#offer') showPage('offer');
+      else showPage('directory');
+    });
+
+    renderProviders();
+    renderSelectedProviders();
+    if(location.hash === '#offer') showPage('offer');
+  </script>
+</body>
+</html>
