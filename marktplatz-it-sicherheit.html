@@ -107,6 +107,8 @@
     .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
     .provider-card{background:#fff;border:1px solid #dbe3ea;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:330px}
     .provider-card.unselected{cursor:pointer}
+    .provider-card.selected{cursor:pointer}
+    .provider-card.selected .provider-select{cursor:pointer}
     .provider-top{position:relative;height:118px;background:#eef3f7}
     .provider-top.pattern{background:
       radial-gradient(circle at 18% 22%, rgba(190,195,201,.55) 0 10px, transparent 11px),
@@ -144,8 +146,8 @@
     .provider-sub{font-size:14px;color:#6f7982;margin-top:4px;min-height:38px}
     .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
     .tag{background:#f0f3f6;color:#6e7680;font-size:12px;padding:4px 7px;border-radius:3px}
-    .location{margin-top:auto;padding-top:11px;font-size:13px;color:#8b949d;border-top:1px solid #edf1f4}
-    .card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-size:13px;color:#99a2ab}
+    .location{font-size:13px;color:#8b949d}
+    .location-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:11px;font-size:13px;color:#99a2ab;border-top:1px solid #edf1f4}
     .profile-link{color:var(--red);font-weight:700}
     .selector{display:flex;align-items:center;gap:8px;color:#525e68;font-size:14px;margin-top:10px}
     .selector.hidden{display:none}
@@ -337,7 +339,7 @@
                     <button class="btn btn-ghost" id="clearSelectionBtn">Auswahl leeren</button>
                   </div>
                   <div class="selection-actions hidden">
-                    <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen</button>
+                    <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen <span aria-hidden="true" style="margin-left:8px">↗</span></button>
                   </div>
                 </div>
               </div>
@@ -630,8 +632,9 @@
       providerGrid.innerHTML = filtered.map(provider => {
         const checked = selectedIds.includes(provider.id) ? 'checked' : '';
         const unselectedClass = selectionMode && !selectedIds.includes(provider.id) ? 'unselected' : '';
+        const selectedClass = selectionMode && selectedIds.includes(provider.id) ? 'selected' : '';
         return `
-          <article class="provider-card ${unselectedClass}" data-id="${provider.id}">
+          <article class="provider-card ${unselectedClass} ${selectedClass}" data-id="${provider.id}">
             <div class="provider-top ${coverClass(provider.cover)} ${provider.cover === 'pattern' ? 'pattern' : ''}">
               ${badgeLabel(provider.tier)}
               ${topArt(provider)}
@@ -642,8 +645,10 @@
               <div class="provider-sub">${provider.sub}</div>
               <div class="tags">${provider.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
               <label class="selector ${selectionMode ? '' : 'hidden'}"><input type="checkbox" class="provider-select" data-id="${provider.id}" ${checked} aria-label="Anbieter ${provider.name} auswählen"></label>
-              <div class="location">📍 ${provider.city}</div>
-              <div class="card-footer"><span>✉</span><a href="#" class="profile-link">Profil ›</a></div>
+              <div class="location-footer">
+                <div class="location">📍 ${provider.city}</div>
+                <a href="#" class="profile-link">Profil ›</a>
+              </div>
             </div>
           </article>
         `;
