@@ -87,15 +87,17 @@
     .results-sort{display:flex;align-items:center;gap:10px;color:#808a92;font-size:14px}
     .results-sort select{border:1px solid #dfe5eb;padding:6px 8px;background:#fff;color:#555}
 
-    .selection-bar{position:relative;display:flex;flex-direction:row;align-items:center;background:#fff;border:1px solid var(--border);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);gap:16px;position:sticky;top:62px;z-index:10}
-    .selection-title{flex:1;}
-    .selection-title strong{font-size:18px;color:#3e4750;margin-bottom:4px;display:block;}
+    .selection-bar{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;background:#fff;border:1px solid var(--border);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);gap:16px;position:sticky;top:62px;z-index:10}
+    .selection-title{flex:1;order:1}
+    .selection-title strong{font-size:18px;color:var(--red);margin-bottom:4px;display:block;}
     .selection-title p{color:#7f8a94;font-size:14px;margin:0;}
-    .selection-bar .btn{margin-left:auto;}
-    .selection-info{margin-top:8px}
-    .selection-controls{display:flex;gap:10px;margin-top:8px}
+    .selection-bar > .btn{align-self:center;order:2}
+    .selection-info:not(.hidden){flex-basis:100%;order:10;margin-top:8px;}
+    .selection-info{display:flex;flex-direction:column;gap:10px;}
+    .selection-bottom{display:flex;justify-content:flex-start;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;}
+    .selection-controls{display:flex;gap:10px;align-items:center;}
+    .selection-actions{display:flex;gap:10px;align-items:center;}
     #endSelectionBtn{position:absolute;top:10px;right:10px;border:none;background:none;color:#666;font-size:14px;cursor:pointer;z-index:10}
-    .selection-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;justify-content:space-between}
     .btn{border:none;border-radius:2px;padding:11px 15px;font-weight:700;cursor:pointer}
     .btn-primary{background:var(--red);color:#fff}
     .btn-primary:hover{background:var(--red-dark)}
@@ -104,6 +106,7 @@
 
     .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
     .provider-card{background:#fff;border:1px solid #dbe3ea;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:330px}
+    .provider-card.unselected{cursor:pointer}
     .provider-top{position:relative;height:118px;background:#eef3f7}
     .provider-top.pattern{background:
       radial-gradient(circle at 18% 22%, rgba(190,195,201,.55) 0 10px, transparent 11px),
@@ -328,16 +331,17 @@
               <button class="btn btn-primary" id="startSelectionBtn">Anbieter auswählen</button>
               <div class="selection-info hidden">
                 <strong id="selectionText">0 Anbieter ausgewählt</strong>
-                <p class="selection-description">Wählen Sie Anbieter aus, um eine Angebotsaufforderung zu erstellen.</p>
+                <div class="selection-bottom">
+                  <div class="selection-controls hidden">
+                    <button class="btn btn-secondary" id="selectVisibleBtn">Alle gefilterten auswählen</button>
+                    <button class="btn btn-ghost" id="clearSelectionBtn">Auswahl leeren</button>
+                  </div>
+                  <div class="selection-actions hidden">
+                    <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen</button>
+                  </div>
+                </div>
               </div>
               <button class="btn btn-ghost hidden" id="endSelectionBtn" style="position:absolute;top:10px;right:10px;border:none;background:none;color:#666;font-size:14px;">X Auswahl beenden</button>
-              <div class="selection-controls hidden">
-                <button class="btn btn-secondary" id="selectVisibleBtn">Alle gefilterten auswählen</button>
-                <button class="btn btn-ghost" id="clearSelectionBtn">Auswahl leeren</button>
-              </div>
-              <div class="selection-actions hidden">
-                <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen</button>
-              </div>
             </div>
 
             <div class="cards" id="providerGrid"></div>
@@ -566,6 +570,7 @@
     ];
 
     let selectedIds = [];
+    let selectionMode = false;
     let currentPage = 'directory';
 
     const providerGrid = document.getElementById('providerGrid');
@@ -636,7 +641,7 @@
               <div class="provider-name">${provider.name}</div>
               <div class="provider-sub">${provider.sub}</div>
               <div class="tags">${provider.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
-              <label class="selector ${selectionMode ? '' : 'hidden'}"><input type="checkbox" class="provider-select" data-id="${provider.id}" ${checked}> Für Angebotsaufforderung auswählen</label>
+              <label class="selector ${selectionMode ? '' : 'hidden'}"><input type="checkbox" class="provider-select" data-id="${provider.id}" ${checked} aria-label="Anbieter ${provider.name} auswählen"></label>
               <div class="location">📍 ${provider.city}</div>
               <div class="card-footer"><span>✉</span><a href="#" class="profile-link">Profil ›</a></div>
             </div>
@@ -644,6 +649,7 @@
         `;
       }).join('');
       bindProviderCheckboxes();
+      bindProviderCardClicks();
       updateSelectionBar();
     }
 
@@ -654,6 +660,24 @@
           if(e.target.checked && !selectedIds.includes(id)) selectedIds.push(id);
           if(!e.target.checked) selectedIds = selectedIds.filter(item => item !== id);
           updateSelectionBar();
+          renderProviders();
+        });
+      });
+    }
+
+    function bindProviderCardClicks(){
+      document.querySelectorAll('.provider-card').forEach(card => {
+        card.addEventListener('click', e => {
+          if(!selectionMode) return;
+          const checkbox = card.querySelector('.provider-select');
+          if(!checkbox) return;
+          if(e.target === checkbox || e.target.closest('label') || e.target.closest('a')) return;
+          checkbox.checked = !checkbox.checked;
+          const id = checkbox.dataset.id;
+          if(checkbox.checked && !selectedIds.includes(id)) selectedIds.push(id);
+          if(!checkbox.checked) selectedIds = selectedIds.filter(item => item !== id);
+          updateSelectionBar();
+          renderProviders();
         });
       });
     }
@@ -696,7 +720,6 @@
       const selectionControls = document.querySelector('.selection-controls');
       const selectionActions = document.querySelector('.selection-actions');
       const endBtn = document.getElementById('endSelectionBtn');
-      const selectionTitle = document.querySelector('.selection-title');
 
       if(selectionMode){
         bar.classList.add('active');
@@ -705,7 +728,6 @@
         selectionActions.classList.remove('hidden');
         startBtn.classList.add('hidden');
         endBtn.classList.remove('hidden');
-        selectionTitle.classList.add('hidden');
         if(selectedIds.length > 0){
           gotoBtn.classList.remove('hidden');
         } else {
@@ -719,7 +741,6 @@
         startBtn.classList.remove('hidden');
         endBtn.classList.add('hidden');
         gotoBtn.classList.add('hidden');
-        selectionTitle.classList.remove('hidden');
       }
     }
 
