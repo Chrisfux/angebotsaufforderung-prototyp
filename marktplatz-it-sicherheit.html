@@ -193,6 +193,11 @@
     .selected-pill{display:flex;align-items:center;gap:8px;border:1px solid #d7dfe6;background:#fbfcfd;padding:10px 12px;border-radius:999px;color:#44525d;font-weight:600}
     .selected-pill button{border:none;background:#ebeff3;color:#5f6b75;border-radius:50%;width:24px;height:24px;cursor:pointer}
     .inline-empty{padding:14px 16px;background:#fafbfc;border:1px dashed #d8dfe6;color:#7b8893}
+    .inline-empty.error{border-color:rgba(155,29,71,.4);background:#fff1f3;color:#8c1f31}
+    .inline-empty.error small{display:block;margin-top:8px;color:#8c1f31;font-size:14px}
+    .field-error{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.09);}
+    .chips.chip-group-error{border:1px solid var(--red);border-radius:10px;padding:9px;}
+    .mini-stat-error{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.09);}
 
     @media (max-width:1220px){
       .cards{grid-template-columns:repeat(2,1fr)}
@@ -694,13 +699,18 @@
       updateSelectionUI();
     }
 
+    let selectionError = false;
+
     function renderSelectedProviders(){
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
       if(!selectedProvidersContainer) return;
       if(selected.length === 0){
-        selectedProvidersContainer.innerHTML = '<div class="inline-empty">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.<br><a href="#directory" style="color:var(--red);font-weight:700;margin-top:8px;display:inline-block;">Zum Anbieterverzeichnis <span aria-hidden="true">↗</span></a></div>';
+        const errorClass = selectionError ? ' error' : '';
+        const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor Sie die Angebotsaufforderung veröffentlichen können.</small>' : '';
+        selectedProvidersContainer.innerHTML = `<div class="inline-empty${errorClass}">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.<br><a href="#directory" style="color:var(--red);font-weight:700;margin-top:8px;display:inline-block;">Zum Anbieterverzeichnis <span aria-hidden="true">↗</span></a>${errorText}</div>`;
         return;
       }
+      selectionError = false;
       selectedProvidersContainer.innerHTML = selected.map(provider => `
         <div class="selected-pill">
           <span>${provider.name}</span>
@@ -894,19 +904,120 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    document.getElementById('publishOfferBtn').addEventListener('click', generatePDF);
+    const publishOfferBtn = document.getElementById('publishOfferBtn');
+    if(publishOfferBtn){
+      publishOfferBtn.addEventListener('click', handlePublishOffer);
+    }
 
-    function generatePDF(e) {
+    function handlePublishOffer(e){
       e.preventDefault();
-      
+      const validation = validateOfferSubmission();
+      clearValidationHighlights();
+
+      if(!validation.isValid){
+        if(validation.selectionError){
+          selectionError = true;
+          renderSelectedProviders();
+          const step1 = document.getElementById('selectedCompaniesSection');
+          if(step1){
+            step1.scrollIntoView({behavior:'smooth', block:'start'});
+          }
+        }
+
+        if(validation.invalidFields.length){
+          validation.invalidFields.forEach(field => markFieldError(field.element));
+          const topField = validation.invalidFields[0].element;
+          if(topField){
+            topField.scrollIntoView({behavior:'smooth', block:'center'});
+          }
+        }
+        return;
+      }
+
+      const confirmed = window.confirm('Sind Sie sicher, dass Ihre Angaben korrekt sind? Dieser Vorgang kann nicht zurückgezogen werden.');
+      if(!confirmed) return;
+
+      generatePDF();
+      showSuccessPage();
+    }
+
+    function validateOfferSubmission(){
+      const invalidFields = [];
+      const selectionError = selectedIds.length === 0;
+      const bedarf = document.getElementById('bedarf');
+      const themenfeld = document.getElementById('themenfeld');
+      const hauptziel = document.getElementById('hauptziel');
+      const systeme = document.getElementById('systeme');
+      const stack = document.getElementById('stack');
+      const anzahlSysteme = document.getElementById('anzahlSysteme');
+      const anzahlNutzer = document.getElementById('anzahlNutzer');
+      const anzahlStandorte = document.getElementById('anzahlStandorte');
+      const branche = document.getElementById('branche');
+      const budget = getActiveChipsText('Budget');
+      const projektstart = getActiveChipsText('Projektstart');
+      const entscheider = getActiveChipsText('Sind Sie Entscheider?');
+      const vergabeprozess = getActiveChipsText('Vergabeprozess');
+
+      if(!bedarf?.value.trim()) invalidFields.push({name:'bedarf', element:bedarf});
+      if(!themenfeld?.value.trim()) invalidFields.push({name:'themenfeld', element:themenfeld});
+      if(!hauptziel?.value.trim()) invalidFields.push({name:'hauptziel', element:hauptziel});
+      if(!systeme?.value.trim()) invalidFields.push({name:'systeme', element:systeme});
+      if(!stack?.value.trim()) invalidFields.push({name:'stack', element:stack});
+      if(!anzahlSysteme?.value.trim()) invalidFields.push({name:'anzahlSysteme', element:anzahlSysteme.closest('.mini-stat')});
+      if(!anzahlNutzer?.value.trim()) invalidFields.push({name:'anzahlNutzer', element:anzahlNutzer.closest('.mini-stat')});
+      if(!anzahlStandorte?.value.trim()) invalidFields.push({name:'anzahlStandorte', element:anzahlStandorte.closest('.mini-stat')});
+      if(!branche?.value.trim()) invalidFields.push({name:'branche', element:branche.closest('.mini-stat')});
+      if(!budget || budget === 'Nicht angegeben') invalidFields.push({name:'budget', element:getFieldGroupElement('Budget')});
+      if(!projektstart || projektstart === 'Nicht angegeben') invalidFields.push({name:'projektstart', element:getFieldGroupElement('Projektstart')});
+      if(!entscheider || entscheider === 'Nicht angegeben') invalidFields.push({name:'entscheider', element:getFieldGroupElement('Sind Sie Entscheider?')});
+      if(!vergabeprozess || vergabeprozess === 'Nicht angegeben') invalidFields.push({name:'vergabeprozess', element:getFieldGroupElement('Vergabeprozess')});
+
+      return {isValid: !selectionError && invalidFields.length === 0, invalidFields, selectionError};
+    }
+
+    function getFieldGroupElement(labelText){
+      const label = Array.from(document.querySelectorAll('.label')).find(el => el.textContent.includes(labelText));
+      if(!label) return null;
+      return label.parentElement.querySelector('.chips') || label;
+    }
+
+    function clearValidationHighlights(){
+      document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+      document.querySelectorAll('.chips.chip-group-error').forEach(el => el.classList.remove('chip-group-error'));
+      document.querySelectorAll('.mini-stat-error').forEach(el => el.classList.remove('mini-stat-error'));
+      if(typeof selectionError !== 'undefined' && selectionError){
+        selectionError = false;
+        renderSelectedProviders();
+      }
+    }
+
+    function markFieldError(element){
+      if(!element) return;
+      if(element.classList.contains('mini-stat')){
+        element.classList.add('mini-stat-error');
+      } else if(element.classList.contains('chips')){
+        element.classList.add('chip-group-error');
+      } else {
+        element.classList.add('field-error');
+      }
+    }
+
+    function getFirstInvalidField(){
+      if(!document.getElementById('bedarf')?.value.trim()) return document.getElementById('bedarf');
+      if(!document.getElementById('themenfeld')?.value.trim()) return document.getElementById('themenfeld');
+      if(!document.getElementById('hauptziel')?.value.trim()) return document.getElementById('hauptziel');
+      if(!document.getElementById('systeme')?.value.trim()) return document.getElementById('systeme');
+      if(!document.getElementById('stack')?.value.trim()) return document.getElementById('stack');
+      return null;
+    }
+
+    function generatePDF() {
       const jsPDFModule = window.jspdf || window.jsPDF;
       const jsPDFClass = jsPDFModule?.jsPDF || jsPDFModule;
       if(!jsPDFClass){
         console.error('jsPDF library not available');
-        showSuccessPage();
         return;
       }
-      
       try {
         const doc = new jsPDFClass();
         doc.setFontSize(20);
@@ -972,8 +1083,6 @@
       } catch(error) {
         console.error('PDF generation error', error);
       }
-
-      showSuccessPage();
     }
 
     function showSuccessPage(){
@@ -981,71 +1090,6 @@
       location.hash = 'success';
     }
 
-    function getActiveChipsText(labelText) {
-      const container = Array.from(document.querySelectorAll('.label')).find(label => label.textContent.includes(labelText));
-      if (!container) return '';
-      const activeChips = container.parentElement.querySelectorAll('.chip.active');
-      return Array.from(activeChips).map(chip => chip.textContent).join(', ') || 'Nicht angegeben';
-    }
-  </script>
-      const selectedNames = selectedIds.map(id => providers.find(p => p.id === id)?.name).filter(Boolean);
-      doc.text('Ausgewählte Anbieter:', 20, y);
-      y += 10;
-      selectedNames.forEach(name => {
-        doc.text(`- ${name}`, 30, y);
-        y += 8;
-      });
-      y += 10;
-      
-      // Bedarf beschreiben
-      doc.text('Bedarf:', 20, y);
-      y += 10;
-      doc.text(document.getElementById('bedarf').value || 'Nicht angegeben', 30, y);
-      y += 20;
-      
-      // Themenfeld
-      doc.text('Themenfeld:', 20, y);
-      y += 10;
-      doc.text(document.getElementById('themenfeld').value || 'Nicht angegeben', 30, y);
-      y += 20;
-      
-      // Hauptziel
-      doc.text('Hauptziel:', 20, y);
-      y += 10;
-      doc.text(document.getElementById('hauptziel').value || 'Nicht angegeben', 30, y);
-      y += 20;
-      
-      // Systeme
-      doc.text('IT-Systeme:', 20, y);
-      y += 10;
-      doc.text(document.getElementById('systeme').value || 'Nicht angegeben', 30, y);
-      y += 20;
-      
-      // Weitere Details
-      const details = [
-        ['Anzahl IT-Systeme', document.querySelector('input[placeholder*="IT-Systeme"]').value],
-        ['Anzahl Nutzer', document.querySelector('input[placeholder*="Nutzer"]').value],
-        ['Anzahl Standorte', document.querySelector('input[placeholder*="Standorte"]').value],
-        ['Branche', document.querySelector('input[placeholder*="Branche"]').value],
-        ['Technologie-Stack', document.getElementById('stack').value],
-        ['Budget', getActiveChipsText('Budget')],
-        ['Projektstart', getActiveChipsText('Projektstart')],
-        ['Entscheider', getActiveChipsText('Sind Sie Entscheider?')],
-        ['Vergabeprozess', getActiveChipsText('Vergabeprozess')],
-        ['Worauf Wert gelegt', getActiveChipsText('Worauf legen Sie Wert?')],
-        ['Weitere Hinweise', document.getElementById('hinweis').value]
-      ];
-      
-      details.forEach(([label, value]) => {
-        if (value && value !== 'Nicht angegeben') {
-          doc.text(`${label}: ${value}`, 20, y);
-          y += 10;
-        }
-      });
-      
-      doc.save('Angebotsaufforderung.pdf');
-    }
-    
     function getActiveChipsText(labelText) {
       const container = Array.from(document.querySelectorAll('.label')).find(label => label.textContent.includes(labelText));
       if (!container) return '';
