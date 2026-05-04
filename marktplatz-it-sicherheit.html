@@ -445,10 +445,10 @@
                 <textarea id="systeme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
               </div>
               <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
-                <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input type="text" placeholder="z. B. 45" /></div>
-                <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input type="text" placeholder="z. B. 320" /></div>
-                <div class="mini-stat"><strong>Anzahl der Standorte</strong><input type="text" placeholder="z. B. 5" /></div>
-                <div class="mini-stat"><strong>Branche</strong><input type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
+                <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input id="anzahlSysteme" type="text" placeholder="z. B. 45" /></div>
+                <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input id="anzahlNutzer" type="text" placeholder="z. B. 320" /></div>
+                <div class="mini-stat"><strong>Anzahl der Standorte</strong><input id="anzahlStandorte" type="text" placeholder="z. B. 5" /></div>
+                <div class="mini-stat"><strong>Branche</strong><input id="branche" type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
               </div>
               <div>
                 <label class="label" for="stack">Technologie-Stack</label>
@@ -509,10 +509,9 @@
                 <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Automatisches Matching</strong><p>Basierend auf Ihren Angaben werden relevante Anbieter ausgewählt.</p></div></div>
                 <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Benachrichtigung der Anbieter</strong><p>Die ausgewählten Anbieter erhalten Ihre Anfrage per E-Mail und Plattform.</p></div></div>
                 <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Angebote erhalten</strong><p>Anbieter können direkt Angebote erstellen und Ihnen zusenden.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">4</div><div><strong>Nachverfolgung</strong><p>Verfolgen Sie den Status Ihrer Anfrage und eingehende Angebote.</p></div></div>
               </div>
               <div class="actions">
-                <a href="#" class="btn btn-primary">Angebotsaufforderung veröffentlichen <i class="material-icons" style="font-size:18px;vertical-align:middle;">share</i></a>
+                <a href="#" id="publishOfferBtn" class="btn btn-primary">Angebotsaufforderung veröffentlichen <i class="material-icons" style="font-size:18px;vertical-align:middle;">share</i></a>
                 <a href="#" class="btn btn-secondary">Entwurf speichern</a>
               </div>
               <div class="footer-note">Prototypischer CTA-Block für den späteren Übergang in den Angebotsprozess.</div>
@@ -547,6 +546,17 @@
         </aside>
       </div>
     </main>
+  </section>
+
+  <section class="page success-page" id="page-success">
+    <div class="hero-wrap">
+      <div class="container" style="max-width:680px;text-align:center;padding:80px 20px;">
+        <div style="font-size:72px;line-height:1;color:var(--red);">✓</div>
+        <h1 style="font-size:32px;margin:20px 0 10px;">Ihr Angebot wurde an uns weitergeleitet</h1>
+        <p style="margin:0 0 30px;color:var(--muted);font-size:17px;line-height:1.5;">Wir prüfen Ihre Anfrage und geben Ihnen zeitnah Rückmeldung.</p>
+        <button id="backToDirectoryBtn" class="btn btn-primary">Zum Anbieterverzeichnis zurückkehren</button>
+      </div>
+    </div>
   </section>
 
   <script>
@@ -790,7 +800,8 @@
     function showPage(page){
       currentPage = page;
       document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-      document.getElementById(page === 'offer' ? 'page-offer' : 'page-directory').classList.add('active');
+      const pageId = page === 'offer' ? 'page-offer' : page === 'success' ? 'page-success' : 'page-directory';
+      document.getElementById(pageId).classList.add('active');
       document.querySelectorAll('[data-nav]').forEach(link => link.classList.remove('active'));
       document.querySelectorAll(`[data-nav="${page}"]`).forEach(link => link.classList.add('active'));
       if(page === 'offer') renderSelectedProviders();
@@ -860,8 +871,17 @@
       });
     });
 
+    const backToDirectoryBtn = document.getElementById('backToDirectoryBtn');
+    if(backToDirectoryBtn){
+      backToDirectoryBtn.addEventListener('click', () => {
+        showPage('directory');
+        location.hash = 'directory';
+      });
+    }
+
     window.addEventListener('hashchange', () => {
       if(location.hash === '#offer') showPage('offer');
+      else if(location.hash === '#success') showPage('success');
       else showPage('directory');
     });
 
@@ -871,6 +891,167 @@
     renderSelectedProviders();
     updateSelectionUI();
     if(location.hash === '#offer') showPage('offer');
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    document.getElementById('publishOfferBtn').addEventListener('click', generatePDF);
+
+    function generatePDF(e) {
+      e.preventDefault();
+      
+      const jsPDFModule = window.jspdf || window.jsPDF;
+      const jsPDFClass = jsPDFModule?.jsPDF || jsPDFModule;
+      if(!jsPDFClass){
+        console.error('jsPDF library not available');
+        showSuccessPage();
+        return;
+      }
+      
+      try {
+        const doc = new jsPDFClass();
+        doc.setFontSize(20);
+        doc.text('Angebotsaufforderung IT-Sicherheit', 20, 30);
+        doc.setFontSize(14);
+        let y = 50;
+
+        const selectedNames = selectedIds.map(id => providers.find(p => p.id === id)?.name).filter(Boolean);
+        doc.text('Ausgewählte Anbieter:', 20, y);
+        y += 10;
+        selectedNames.forEach(name => {
+          doc.text(`- ${name}`, 30, y);
+          y += 8;
+        });
+        y += 10;
+
+        doc.text('Bedarf:', 20, y);
+        y += 10;
+        doc.text(document.getElementById('bedarf').value || 'Nicht angegeben', 30, y);
+        y += 20;
+
+        doc.text('Themenfeld:', 20, y);
+        y += 10;
+        doc.text(document.getElementById('themenfeld').value || 'Nicht angegeben', 30, y);
+        y += 20;
+
+        doc.text('Hauptziel:', 20, y);
+        y += 10;
+        doc.text(document.getElementById('hauptziel').value || 'Nicht angegeben', 30, y);
+        y += 20;
+
+        doc.text('IT-Systeme:', 20, y);
+        y += 10;
+        doc.text(document.getElementById('systeme').value || 'Nicht angegeben', 30, y);
+        y += 20;
+
+        const details = [
+          ['Anzahl IT-Systeme', document.getElementById('anzahlSysteme')?.value],
+          ['Anzahl Nutzer', document.getElementById('anzahlNutzer')?.value],
+          ['Anzahl Standorte', document.getElementById('anzahlStandorte')?.value],
+          ['Branche', document.getElementById('branche')?.value],
+          ['Technologie-Stack', document.getElementById('stack')?.value],
+          ['Budget', getActiveChipsText('Budget')],
+          ['Projektstart', getActiveChipsText('Projektstart')],
+          ['Entscheider', getActiveChipsText('Sind Sie Entscheider?')],
+          ['Vergabeprozess', getActiveChipsText('Vergabeprozess')],
+          ['Worauf Wert gelegt', getActiveChipsText('Worauf legen Sie Wert?')],
+          ['Weitere Hinweise', document.getElementById('hinweis').value]
+        ];
+
+        details.forEach(([label, value]) => {
+          if (value && value !== 'Nicht angegeben') {
+            if(y > 270){
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(`${label}: ${value}`, 20, y);
+            y += 10;
+          }
+        });
+
+        doc.save('Angebotsaufforderung.pdf');
+      } catch(error) {
+        console.error('PDF generation error', error);
+      }
+
+      showSuccessPage();
+    }
+
+    function showSuccessPage(){
+      showPage('success');
+      location.hash = 'success';
+    }
+
+    function getActiveChipsText(labelText) {
+      const container = Array.from(document.querySelectorAll('.label')).find(label => label.textContent.includes(labelText));
+      if (!container) return '';
+      const activeChips = container.parentElement.querySelectorAll('.chip.active');
+      return Array.from(activeChips).map(chip => chip.textContent).join(', ') || 'Nicht angegeben';
+    }
+  </script>
+      const selectedNames = selectedIds.map(id => providers.find(p => p.id === id)?.name).filter(Boolean);
+      doc.text('Ausgewählte Anbieter:', 20, y);
+      y += 10;
+      selectedNames.forEach(name => {
+        doc.text(`- ${name}`, 30, y);
+        y += 8;
+      });
+      y += 10;
+      
+      // Bedarf beschreiben
+      doc.text('Bedarf:', 20, y);
+      y += 10;
+      doc.text(document.getElementById('bedarf').value || 'Nicht angegeben', 30, y);
+      y += 20;
+      
+      // Themenfeld
+      doc.text('Themenfeld:', 20, y);
+      y += 10;
+      doc.text(document.getElementById('themenfeld').value || 'Nicht angegeben', 30, y);
+      y += 20;
+      
+      // Hauptziel
+      doc.text('Hauptziel:', 20, y);
+      y += 10;
+      doc.text(document.getElementById('hauptziel').value || 'Nicht angegeben', 30, y);
+      y += 20;
+      
+      // Systeme
+      doc.text('IT-Systeme:', 20, y);
+      y += 10;
+      doc.text(document.getElementById('systeme').value || 'Nicht angegeben', 30, y);
+      y += 20;
+      
+      // Weitere Details
+      const details = [
+        ['Anzahl IT-Systeme', document.querySelector('input[placeholder*="IT-Systeme"]').value],
+        ['Anzahl Nutzer', document.querySelector('input[placeholder*="Nutzer"]').value],
+        ['Anzahl Standorte', document.querySelector('input[placeholder*="Standorte"]').value],
+        ['Branche', document.querySelector('input[placeholder*="Branche"]').value],
+        ['Technologie-Stack', document.getElementById('stack').value],
+        ['Budget', getActiveChipsText('Budget')],
+        ['Projektstart', getActiveChipsText('Projektstart')],
+        ['Entscheider', getActiveChipsText('Sind Sie Entscheider?')],
+        ['Vergabeprozess', getActiveChipsText('Vergabeprozess')],
+        ['Worauf Wert gelegt', getActiveChipsText('Worauf legen Sie Wert?')],
+        ['Weitere Hinweise', document.getElementById('hinweis').value]
+      ];
+      
+      details.forEach(([label, value]) => {
+        if (value && value !== 'Nicht angegeben') {
+          doc.text(`${label}: ${value}`, 20, y);
+          y += 10;
+        }
+      });
+      
+      doc.save('Angebotsaufforderung.pdf');
+    }
+    
+    function getActiveChipsText(labelText) {
+      const container = Array.from(document.querySelectorAll('.label')).find(label => label.textContent.includes(labelText));
+      if (!container) return '';
+      const activeChips = container.parentElement.querySelectorAll('.chip.active');
+      return Array.from(activeChips).map(chip => chip.textContent).join(', ') || 'Nicht angegeben';
+    }
   </script>
 </body>
 </html>
