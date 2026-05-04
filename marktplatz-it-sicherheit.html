@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     :root{
       --bg:#f6f8fb;
@@ -174,10 +175,10 @@
     label.label{display:block;font-weight:700;color:#414b53;margin:0 0 7px;font-size:17px}
     .hint{display:block;color:var(--muted);font-size:14px;margin-top:4px}
     input[type="text"],textarea,select{width:100%;border:1px solid #d6dee5;background:#fff;min-height:46px;padding:10px 12px;color:var(--text);outline:none}
-    textarea{min-height:130px;resize:vertical}
+    textarea{min-height:46px;resize:none;overflow:hidden}
     input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.09)}
     .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-    .chip{border:1px solid #cfdae3;background:#f8fafb;color:#41505c;padding:10px 14px;font-weight:600;font-size:15px;border-radius:999px}
+    .chip{border:1px solid #cfdae3;background:#f8fafb;color:#41505c;padding:10px 14px;font-weight:600;font-size:15px;border-radius:999px;cursor:pointer;user-select:none}
     .chip.active{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
     .mini-stat{border:1px solid #dde5eb;background:#fbfcfd;padding:14px}
     .mini-stat strong{display:block;font-size:14px;color:#5c6771;margin-bottom:8px}
@@ -408,11 +409,11 @@
               <div class="grid-2">
                 <div>
                   <label class="label" for="themenfeld">Um welches Themenfeld im Bereich IT-Sicherheit geht es?</label>
-                  <input id="themenfeld" type="text" placeholder="Freitext oder Operbegriffe ergänzen" />
+                  <textarea id="themenfeld" placeholder="Freitext oder Operbegriffe ergänzen" rows="1"></textarea>
                   <div class="chips">
-                    <span class="chip active">Cybersecurity</span>
+                    <span class="chip">Cybersecurity</span>
                     <span class="chip">Awareness</span>
-                    <span class="chip active">BSI-Grundschutz</span>
+                    <span class="chip">BSI-Grundschutz</span>
                     <span class="chip">Netzwerksicherheit</span>
                     <span class="chip">Compliance</span>
                     <span class="chip">SOC</span>
@@ -420,11 +421,11 @@
                 </div>
                 <div>
                   <label class="label" for="hauptziel">Was ist Ihr Hauptziel?</label>
-                  <input id="hauptziel" type="text" placeholder="Optionales Freitextfeld ergänzen" />
+                  <textarea id="hauptziel" placeholder="Optionales Freitextfeld ergänzen" rows="1"></textarea>
                   <div class="chips">
-                    <span class="chip active">Sicherheitslücken finden</span>
+                    <span class="chip">Sicherheitslücken finden</span>
                     <span class="chip">Compliance erfüllen</span>
-                    <span class="chip active">Angriffe erkennen/verhindern</span>
+                    <span class="chip">Angriffe erkennen/verhindern</span>
                     <span class="chip">Sicherheitsniveau verbessern</span>
                   </div>
                 </div>
@@ -443,7 +444,7 @@
                 <label class="label" for="systeme">Welche IT-Systeme haben Sie im Einsatz?</label>
                 <textarea id="systeme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
               </div>
-              <div class="grid-4" style="margin-bottom:18px;">
+              <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
                 <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input type="text" placeholder="z. B. 45" /></div>
                 <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input type="text" placeholder="z. B. 320" /></div>
                 <div class="mini-stat"><strong>Anzahl der Standorte</strong><input type="text" placeholder="z. B. 5" /></div>
@@ -466,32 +467,32 @@
               <div class="grid-2" style="margin-bottom:18px;">
                 <div>
                   <label class="label">Budget</label>
-                  <div class="chips"><span class="chip">&lt; 10k</span><span class="chip active">10–50k</span><span class="chip">50–100k</span><span class="chip">100k+</span></div>
+                  <div class="chips"><span class="chip">&lt; 10k</span><span class="chip">10–50k</span><span class="chip">50–100k</span><span class="chip">100k+</span></div>
                   <span class="hint">Nur eine Auswahl vorgesehen.</span>
                 </div>
                 <div>
                   <label class="label">Projektstart</label>
-                  <div class="chips"><span class="chip active">Sofort</span><span class="chip">&lt; 1 Monat</span><span class="chip">1–3 Monate</span><span class="chip">4 Monate+</span></div>
+                  <div class="chips"><span class="chip">Sofort</span><span class="chip">&lt; 1 Monat</span><span class="chip">1–3 Monate</span><span class="chip">4 Monate+</span></div>
                   <span class="hint">Nur eine Auswahl vorgesehen.</span>
                 </div>
                 <div>
                   <label class="label">Sind Sie Entscheider?</label>
-                  <div class="chips"><span class="chip active">Ja</span><span class="chip">Teilweise</span><span class="chip">Nein</span></div>
+                  <div class="chips"><span class="chip">Ja</span><span class="chip">Teilweise</span><span class="chip">Nein</span></div>
                 </div>
                 <div>
                   <label class="label">Vergabeprozess</label>
-                  <div class="chips"><span class="chip active">Direkte Beauftragung möglich</span><span class="chip">Mehrere Angebote geplant</span><span class="chip">Formale Ausschreibung</span></div>
+                  <div class="chips"><span class="chip">Direkte Beauftragung möglich</span><span class="chip">Mehrere Angebote geplant</span><span class="chip">Formale Ausschreibung</span></div>
                 </div>
               </div>
               <div class="grid-2">
                 <div>
                   <label class="label">Worauf legen Sie Wert?</label>
-                  <div class="chips"><span class="chip active">Preis</span><span class="chip active">Qualität</span><span class="chip">Geschwindigkeit</span><span class="chip active">Erfahrung</span></div>
+                  <div class="chips"><span class="chip">Preis</span><span class="chip">Qualität</span><span class="chip">Geschwindigkeit</span><span class="chip">Erfahrung</span></div>
                   <span class="hint">Mehrfachauswahl vorgesehen.</span>
                 </div>
                 <div>
                   <label class="label" for="hinweis">Weitere Hinweise</label>
-                  <textarea id="hinweis" placeholder="Spezielle Anforderungen, Compliance-Vorgaben, Fristen, Rahmenverträge, Voranbieter, Sprachen ..."></textarea>
+                  <textarea id="hinweis" placeholder="Spezielle Anforderungen, Compliance-Vorgaben, Fristen, Rahmenverträge, Voranbieter, Sprachen ..." style="min-height: 120px;"></textarea>
                 </div>
               </div>
             </div>
@@ -501,17 +502,17 @@
             <div class="section-head">
               <div class="section-kicker">Schritt 5</div>
               <h3>Veröffentlichung und Matching</h3>
-              <div class="section-sub">Die Angebotsaufforderung liegt auf dem Marktplatz; Anbieter-Matching und spätere Angebotsabgabe sollen nachvollziehbar sein.</div>
+              <div class="section-sub">Ihre Anfrage wird nun veröffentlicht und automatisch passenden IT-Sicherheitsanbietern zugeteilt.</div>
             </div>
             <div class="section-body">
-              <div class="timeline">
-                <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Bedarf einstellen</strong><p>Der Anwender beschreibt und qualifiziert die Anfrage über dieses Formular.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Matching mit Anbietern</strong><p>Zuordnung anhand von IT-Sicherheitsschwerpunkten und IT-Lösungen auf dem Marktplatz.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Weiterleitung und Kontakt</strong><p>Anbieter können per Plattform, E-Mail oder Chat reagieren und mit dem Anwender in Verbindung treten.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">4</div><div><strong>Angebote und Tracking</strong><p>Die Anforderungen nennen die Nachverfolgung von Aufrufen, Downloads und Angebotsansichten als gewünschte Plattformfunktion.</p></div></div>
+              <div class="timeline" style="margin-bottom:24px;">
+                <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Automatisches Matching</strong><p>Basierend auf Ihren Angaben werden relevante Anbieter ausgewählt.</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Benachrichtigung der Anbieter</strong><p>Die ausgewählten Anbieter erhalten Ihre Anfrage per E-Mail und Plattform.</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Angebote erhalten</strong><p>Anbieter können direkt Angebote erstellen und Ihnen zusenden.</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">4</div><div><strong>Nachverfolgung</strong><p>Verfolgen Sie den Status Ihrer Anfrage und eingehende Angebote.</p></div></div>
               </div>
               <div class="actions">
-                <a href="#" class="btn btn-primary">Angebotsaufforderung veröffentlichen</a>
+                <a href="#" class="btn btn-primary">Angebotsaufforderung veröffentlichen <i class="material-icons" style="font-size:18px;vertical-align:middle;">share</i></a>
                 <a href="#" class="btn btn-secondary">Entwurf speichern</a>
               </div>
               <div class="footer-note">Prototypischer CTA-Block für den späteren Übergang in den Angebotsprozess.</div>
@@ -523,35 +524,26 @@
           <section class="card aside-card">
             <h4>Ablauf auf einen Blick</h4>
             <div class="progress">
-              <div class="progress-step active"><span>1</span><span>Bedarf beschreiben</span></div>
-              <div class="progress-step"><span>2</span><span>Anfrage qualifizieren</span></div>
-              <div class="progress-step"><span>3</span><span>Matching mit Anbietern</span></div>
-              <div class="progress-step"><span>4</span><span>Weiterleitung an Anbieter</span></div>
-              <div class="progress-step"><span>5</span><span>Angebote erhalten</span></div>
-              <div class="progress-step"><span>6</span><span>In Kontakt treten</span></div>
+              <div class="progress-step active"><span>1</span><span>Vorauswahl Anbieter</span></div>
+              <div class="progress-step"><span>2</span><span>Bedarf beschreiben</span></div>
+              <div class="progress-step"><span>3</span><span>Scope &amp; Systemlandschaft</span></div>
+              <div class="progress-step"><span>4</span><span>Rahmenbedingungen</span></div>
+              <div class="progress-step"><span>5</span><span>Veröffentlichung &amp; Matching</span></div>
+              <div class="progress-step"><span>6</span><span>Angebote erhalten</span></div>
             </div>
           </section>
 
           <section class="card aside-card">
-            <h4>Profilinformationen</h4>
-            <p>Ein Anwender-Account wird als Randbedingung genannt, um mehr Vertrauenswürdigkeit zu schaffen; einzelne Angaben wie Branche sollen direkt aus dem Profil übernommen werden können.</p>
+            <h4>Hilfe beim Ausfüllen</h4>
+            <p>Versuchen Sie Ihre Anfrage klar und vollständig zu beschreiben. Das erleichtert den passenden Anbietern die Auswahl und verkürzt die Angebotsphase.</p>
             <ul>
-              <li>Unternehmen / Organisation</li>
-              <li>Branche</li>
-              <li>Ansprechpartner</li>
-              <li>Kontaktwege für Rückfragen</li>
+              <li>Schreiben Sie konkret: Was soll umgesetzt oder verbessert werden?</li>
+              <li>Nennen Sie wichtige Systeme, Nutzerzahlen und betroffene Bereiche.</li>
+              <li>Geben Sie Ziele, Zeitrahmen und eventuell vorhandene Standards an.</li>
+              <li>Ergänzen Sie Hinweise zu bestehender Infrastruktur, Compliance oder Voranbietern.</li>
             </ul>
           </section>
 
-          <section class="card aside-card">
-            <h4>Kontaktkanäle</h4>
-            <p>Im Konzept sind E-Mail, Telefon und das Chat-System als mögliche Verbindungswege zwischen Anwendern und Anbietern vorgesehen.</p>
-            <ul>
-              <li>E-Mail-Benachrichtigung</li>
-              <li>Direkter Telefonkontakt</li>
-              <li>Nachrichten über den Plattform-Chat</li>
-            </ul>
-          </section>
         </aside>
       </div>
     </main>
@@ -748,6 +740,53 @@
       }
     }
 
+    function setupChipInteractions(){
+      document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const chipsWrapper = chip.closest('.chips');
+          if(!chipsWrapper) return;
+          const container = chipsWrapper.parentElement;
+          const hint = container.querySelector('.hint');
+          const singleChoice = hint && hint.textContent.includes('Nur eine Auswahl');
+
+          if(singleChoice){
+            container.querySelectorAll('.chip').forEach(item => item.classList.remove('active'));
+            chip.classList.add('active');
+          } else {
+            chip.classList.toggle('active');
+          }
+
+          const field = container.querySelector('input[type="text"], textarea');
+          if(field){
+            const term = chip.textContent.trim();
+            const values = field.value.split(',').map(item => item.trim()).filter(Boolean);
+            const index = values.indexOf(term);
+
+            if(chip.classList.contains('active')){
+              if(index === -1) values.push(term);
+            } else {
+              if(index !== -1) values.splice(index, 1);
+            }
+
+            field.value = values.join(', ');
+            autoResizeTextarea(field);
+          }
+        });
+      });
+    }
+
+    function autoResizeTextarea(textarea){
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    function setupTextareaAutoResize(){
+      document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+        autoResizeTextarea(textarea); // Initial resize
+      });
+    }
+
     function showPage(page){
       currentPage = page;
       document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
@@ -826,6 +865,8 @@
       else showPage('directory');
     });
 
+    setupChipInteractions();
+    setupTextareaAutoResize();
     renderProviders();
     renderSelectedProviders();
     updateSelectionUI();
