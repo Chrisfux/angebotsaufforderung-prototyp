@@ -88,7 +88,7 @@
     .results-sort{display:flex;align-items:center;gap:10px;color:#808a92;font-size:14px}
     .results-sort select{border:1px solid #dfe5eb;padding:6px 8px;background:#fff;color:#555}
 
-    .selection-bar{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;background:#fff;border:1px solid var(--border);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);gap:16px;position:sticky;top:62px;z-index:10}
+    .selection-bar{position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;background:#fff;border:1px solid var(--border);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);gap:16px}
     .selection-title{flex:1;order:1}
     .selection-title strong{font-size:18px;color:var(--red);margin-bottom:4px;display:block;}
     .selection-title p{color:#7f8a94;font-size:14px;margin:0;}
@@ -227,6 +227,10 @@
       .results-title strong{font-size:22px;display:block}
       .results-top{align-items:flex-start;gap:10px;flex-direction:column}
     }
+    .pagination{display:flex;justify-content:center;gap:10px;margin:20px 0}
+    .pagination button{background:#fff;border:1px solid var(--border);padding:8px 12px;cursor:pointer;border-radius:4px}
+    .pagination button.active{background:var(--red);color:#fff;border-color:var(--red)}
+    .pagination button:disabled{background:#f0f0f0;color:#ccc;cursor:not-allowed}
   </style>
 </head>
 <body>
@@ -353,6 +357,7 @@
             </div>
 
             <div class="cards" id="providerGrid"></div>
+            <div class="pagination" id="pagination"></div>
           </section>
         </div>
       </div>
@@ -574,15 +579,24 @@
       {id:'glueckkanja',name:'Nimbus Cyberworks',city:'Offenbach',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Cloud (Computing) Security','Cyber Security as a Service'],tier:'plus',logo:'NC',logoClass:'blue',cover:'purple',distance:30,sub:'We Manage and Protect Microsoft Ecosystems at Scale'},
       {id:'bytesnipers',name:'PulseSec Networks',city:'Bremen',industry:['Energie, Versorgung und Entsorgung','KRITIS'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Incident Response','OT Security'],tier:'basis',logo:'PS',logoClass:'black',cover:'blue',distance:300,sub:'Incident Response und Resilienzprogramme für kritische Infrastrukturen.'},
       {id:'scutis',name:'Aegis Advisory',city:'Rosenheim',industry:['Gesundheitswesen','Öffentliche Verwaltung'],focus:['Beratung'],tags:['Compliance','DSGVO'],tier:'basis',logo:'AA',logoClass:'',cover:'red',distance:75,sub:'Pragmatische Beratung für Audits, Prozesse und regulatorische Sicherheit.'},
-      {id:'link11',name:'Sentinel Xpert',city:'Frankfurt am Main',industry:['Finanz- und Versicherungswesen','IT und Telekommunikation'],focus:['Cybersicherheit','Beratung'],tags:['Applikationssicherheit','Automatisierung','DDoS'],tier:'premium',logo:'SX',logoClass:'green',cover:'dark',distance:45,sub:'EMPOWERING YOUR BUSINESS SECURITY.'}
+      {id:'link11',name:'Sentinel Xpert',city:'Frankfurt am Main',industry:['Finanz- und Versicherungswesen','IT und Telekommunikation'],focus:['Cybersicherheit','Beratung'],tags:['Applikationssicherheit','Automatisierung','DDoS'],tier:'premium',logo:'SX',logoClass:'green',cover:'dark',distance:45,sub:'EMPOWERING YOUR BUSINESS SECURITY.'},
+      {id:'cybertech',name:'CyberTech Innovations',city:'München',industry:['IT und Telekommunikation','Handel und Dienstleistungen'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Firewall','VPN','Endpoint Security'],tier:'plus',logo:'CI',logoClass:'blue',cover:'tech',distance:50,sub:'Innovative Sicherheitslösungen für moderne Unternehmen.'},
+      {id:'secureflow',name:'SecureFlow GmbH',city:'Köln',industry:['Finanz- und Versicherungswesen','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['Risikoanalyse','Compliance','Audits'],tier:'basis',logo:'SF',logoClass:'',cover:'pattern',distance:80,sub:'Umfassende Beratung und Sicherheitsaudits.'},
+      {id:'netguard',name:'NetGuard Solutions',city:'Stuttgart',industry:['Automobilindustrie','Energie, Versorgung und Entsorgung'],focus:['IT-Sicherheit','Cybersicherheit'],tags:['Netzwerksicherheit','Monitoring','SIEM'],tier:'premium',logo:'NS',logoClass:'black',cover:'dark',distance:120,sub:'Professionelle Netzwerksicherheit und Überwachung.'},
+      {id:'datashield',name:'DataShield Advisors',city:'Hannover',industry:['Öffentliche Verwaltung','KRITIS'],focus:['Beratung'],tags:['Datenschutz','DSGVO','Privacy'],tier:'plus',logo:'DA',logoClass:'green',cover:'blue',distance:150,sub:'Experten für Datenschutz und Compliance.'},
+      {id:'threatstop',name:'ThreatStop Inc.',city:'Düsseldorf',industry:['Handel und Dienstleistungen','IT und Telekommunikation'],focus:['Cybersicherheit'],tags:['Threat Intelligence','Malware Protection','Phishing'],tier:'basis',logo:'TS',logoClass:'',cover:'red',distance:200,sub:'Schutz vor aktuellen Bedrohungen und Angriffen.'},
+      {id:'infosecpro',name:'InfoSec Pro',city:'Leipzig',industry:['Gesundheitswesen','Finanz- und Versicherungswesen'],focus:['IT-Sicherheit','Beratung'],tags:['Informationssicherheit','Training','Awareness'],tier:'plus',logo:'IP',logoClass:'blue',cover:'purple',distance:250,sub:'Professionelle Schulungen und Beratung zur IT-Sicherheit.'}
     ];
 
     let selectedIds = [];
     let selectionMode = false;
     let currentPage = 'directory';
+    let currentPaginationPage = 1;
+    const itemsPerPage = 12;
 
     const providerGrid = document.getElementById('providerGrid');
     const resultCount = document.getElementById('resultCount');
+    const pageSpan = document.querySelector('.results-title span');
     const selectionText = document.getElementById('selectionText');
     const selectedProvidersContainer = document.getElementById('selectedProvidersContainer');
     const globalSearch = document.getElementById('globalSearch');
@@ -634,8 +648,13 @@
 
     function renderProviders(){
       const filtered = getFilteredProviders();
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      const startIndex = (currentPaginationPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageProviders = filtered.slice(startIndex, endIndex);
       resultCount.textContent = `${filtered.length} Anbieter gefunden`;
-      providerGrid.innerHTML = filtered.map(provider => {
+      pageSpan.textContent = totalPages > 1 ? `(Seite ${currentPaginationPage} von ${totalPages})` : '(Seite 1 von 1)';
+      providerGrid.innerHTML = pageProviders.map(provider => {
         const checked = selectedIds.includes(provider.id) ? 'checked' : '';
         const unselectedClass = selectionMode && !selectedIds.includes(provider.id) ? 'unselected' : '';
         const selectedClass = selectionMode && selectedIds.includes(provider.id) ? 'selected' : '';
@@ -659,9 +678,42 @@
           </article>
         `;
       }).join('');
+      renderPagination(totalPages);
       bindProviderCheckboxes();
       bindProviderCardClicks();
       updateSelectionBar();
+    }
+
+    function renderPagination(totalPages){
+      const pagination = document.getElementById('pagination');
+      if(totalPages <= 1){
+        pagination.innerHTML = '';
+        return;
+      }
+      let html = '<button id="prevPage" ' + (currentPaginationPage === 1 ? 'disabled' : '') + '>‹ Zurück</button>';
+      for(let i = 1; i <= totalPages; i++){
+        html += `<button class="page-btn ${i === currentPaginationPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      }
+      html += '<button id="nextPage" ' + (currentPaginationPage === totalPages ? 'disabled' : '') + '>Weiter ›</button>';
+      pagination.innerHTML = html;
+      document.getElementById('prevPage').addEventListener('click', () => {
+        if(currentPaginationPage > 1){
+          currentPaginationPage--;
+          renderProviders();
+        }
+      });
+      document.getElementById('nextPage').addEventListener('click', () => {
+        if(currentPaginationPage < totalPages){
+          currentPaginationPage++;
+          renderProviders();
+        }
+      });
+      document.querySelectorAll('.page-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentPaginationPage = Number(btn.dataset.page);
+          renderProviders();
+        });
+      });
     }
 
     function bindProviderCheckboxes(){
@@ -831,11 +883,11 @@
     setupPlaceholderBehavior(globalSearch);
     setupPlaceholderBehavior(locationSearch);
 
-    document.querySelectorAll('.filter-industry, .filter-focus').forEach(input => input.addEventListener('change', renderProviders));
-    globalSearch.addEventListener('input', renderProviders);
-    locationSearch.addEventListener('input', renderProviders);
-    radiusSelect.addEventListener('change', renderProviders);
-    document.getElementById('runSearch').addEventListener('click', renderProviders);
+    document.querySelectorAll('.filter-industry, .filter-focus').forEach(input => input.addEventListener('change', () => { currentPaginationPage = 1; renderProviders(); }));
+    globalSearch.addEventListener('input', () => { currentPaginationPage = 1; renderProviders(); });
+    locationSearch.addEventListener('input', () => { currentPaginationPage = 1; renderProviders(); });
+    radiusSelect.addEventListener('change', () => { currentPaginationPage = 1; renderProviders(); });
+    document.getElementById('runSearch').addEventListener('click', () => { currentPaginationPage = 1; renderProviders(); });
 
     document.getElementById('startSelectionBtn').addEventListener('click', () => {
       selectionMode = true;
