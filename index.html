@@ -159,7 +159,7 @@
     .provider-select{position:absolute;top:10px;left:10px;width:24px;height:24px;z-index:10;border:2px solid #fff;border-radius:4px;background:#fff}
     .offer-hero{display:grid;grid-template-columns:190px 1fr 240px;gap:28px;align-items:center;margin-bottom:26px}
     .offer-cta{justify-self:end;background:var(--red);color:#fff;padding:15px 18px;font-size:18px;font-weight:700;box-shadow:var(--shadow)}
-    .info-strip{background:var(--red);color:#fff;padding:26px 32px;margin:8px 0 30px;box-shadow:var(--shadow)}
+    .info-strip{background:var(--red);color:#fff;padding:26px 32px;margin:22px 0 30px;box-shadow:var(--shadow)}
     .info-strip h2{margin:0 0 10px;font-size:37px;line-height:1.05}
     .info-strip p{margin:0;font-size:18px;max-width:940px;color:rgba(255,255,255,.93)}
     .layout{display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
@@ -180,6 +180,9 @@
     .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
     .chip{border:1px solid #cfdae3;background:#f8fafb;color:#41505c;padding:10px 14px;font-weight:600;font-size:15px;border-radius:999px;cursor:pointer;user-select:none}
     .chip.active{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
+    .meta-group{margin-bottom:10px}
+    .meta-group strong{display:block;margin-bottom:8px;font-size:15px;color:#333}
+    .selected-provider-list{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
     .mini-stat{border:1px solid #dde5eb;background:#fbfcfd;padding:14px}
     .mini-stat strong{display:block;font-size:14px;color:#5c6771;margin-bottom:8px}
     .mini-stat input{min-height:42px}
@@ -402,6 +405,8 @@
             </div>
             <div class="section-body">
               <div id="selectedProvidersContainer" class="selected-providers"></div>
+              <div id="selectedFiltersContainer" class="chips"></div>
+              <div id="selectedTopicsContainer" class="chips"></div>
             </div>
           </section>
 
@@ -414,21 +419,10 @@
             <div class="section-body">
               <div style="margin-bottom:18px;">
                 <label class="label" for="bedarf">Beschreiben Sie klar, was Sie angeboten bekommen möchten</label>
-                <textarea id="bedarf" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
+                <textarea id="bedarf" style="min-height:140px;" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
               </div>
+              <!--
               <div class="grid-2">
-                <div>
-                  <label class="label" for="themenfeld">Um welches Themenfeld im Bereich IT-Sicherheit geht es?</label>
-                  <textarea id="themenfeld" placeholder="Freitext oder Operbegriffe ergänzen" rows="1"></textarea>
-                  <div class="chips">
-                    <span class="chip">Cybersecurity</span>
-                    <span class="chip">Awareness</span>
-                    <span class="chip">BSI-Grundschutz</span>
-                    <span class="chip">Netzwerksicherheit</span>
-                    <span class="chip">Compliance</span>
-                    <span class="chip">SOC</span>
-                  </div>
-                </div>
                 <div>
                   <label class="label" for="hauptziel">Was ist Ihr Hauptziel?</label>
                   <textarea id="hauptziel" placeholder="Optionales Freitextfeld ergänzen" rows="1"></textarea>
@@ -440,36 +434,14 @@
                   </div>
                 </div>
               </div>
+              -->
+              <textarea id="themenfeld" style="display:none"></textarea>
             </div>
           </section>
 
           <section class="card section">
             <div class="section-head">
               <div class="section-kicker">Schritt 3</div>
-              <h3>Scope und Systemlandschaft</h3>
-              <div class="section-sub">Die Anforderungen nennen ausdrücklich Systeme, Komplexität und Technologie-Stack als Qualifizierungsdaten.</div>
-            </div>
-            <div class="section-body">
-              <div style="margin-bottom:18px;">
-                <label class="label" for="systeme">Welche IT-Systeme haben Sie im Einsatz?</label>
-                <textarea id="systeme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
-              </div>
-              <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
-                <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input id="anzahlSysteme" type="text" placeholder="z. B. 45" /></div>
-                <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input id="anzahlNutzer" type="text" placeholder="z. B. 320" /></div>
-                <div class="mini-stat"><strong>Anzahl der Standorte</strong><input id="anzahlStandorte" type="text" placeholder="z. B. 5" /></div>
-                <div class="mini-stat"><strong>Branche</strong><input id="branche" type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
-              </div>
-              <div>
-                <label class="label" for="stack">Technologie-Stack</label>
-                <textarea id="stack" placeholder="MS, Linux, Apple, Cloud-Dienste, Netzwerk- und Security-Tools ..."></textarea>
-              </div>
-            </div>
-          </section>
-
-          <section class="card section">
-            <div class="section-head">
-              <div class="section-kicker">Schritt 4</div>
               <h3>Rahmenbedingungen</h3>
               <div class="section-sub">Budget, Projektstart, Entscheiderstatus, Vergabeprozess und Prioritäten sind als feste Felder im Anforderungsdokument genannt.</div>
             </div>
@@ -510,6 +482,30 @@
 
           <section class="card section">
             <div class="section-head">
+              <div class="section-kicker">Schritt 4</div>
+              <h3>Scope und Systemlandschaft</h3>
+              <div class="section-sub">Optional: Systeme, Komplexität und Technologie-Stack können hier ergänzt werden, wenn Sie möchten.</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:18px;">
+                <label class="label" for="systeme">Welche IT-Systeme haben Sie im Einsatz?</label>
+                <textarea id="systeme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
+              </div>
+              <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
+                <div class="mini-stat"><strong>Anzahl der IT-Systeme</strong><input id="anzahlSysteme" type="text" placeholder="z. B. 45" /></div>
+                <div class="mini-stat"><strong>Anzahl der Nutzer</strong><input id="anzahlNutzer" type="text" placeholder="z. B. 320" /></div>
+                <div class="mini-stat"><strong>Anzahl der Standorte</strong><input id="anzahlStandorte" type="text" placeholder="z. B. 5" /></div>
+                <div class="mini-stat"><strong>Branche</strong><input id="branche" type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
+              </div>
+              <div>
+                <label class="label" for="stack">Technologie-Stack</label>
+                <textarea id="stack" placeholder="MS, Linux, Apple, Cloud-Dienste, Netzwerk- und Security-Tools ..."></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="card section">
+            <div class="section-head">
               <div class="section-kicker">Schritt 5</div>
               <h3>Veröffentlichung und Matching</h3>
               <div class="section-sub">Ihre Anfrage wird nun veröffentlicht und automatisch passenden IT-Sicherheitsanbietern zugeteilt.</div>
@@ -535,8 +531,8 @@
             <div class="progress">
               <div class="progress-step active"><span>1</span><span>Vorauswahl Anbieter</span></div>
               <div class="progress-step"><span>2</span><span>Bedarf beschreiben</span></div>
-              <div class="progress-step"><span>3</span><span>Scope &amp; Systemlandschaft</span></div>
-              <div class="progress-step"><span>4</span><span>Rahmenbedingungen</span></div>
+              <div class="progress-step"><span>3</span><span>Rahmenbedingungen</span></div>
+              <div class="progress-step"><span>4</span><span>Scope &amp; Systemlandschaft</span></div>
               <div class="progress-step"><span>5</span><span>Veröffentlichung &amp; Matching</span></div>
               <div class="progress-step"><span>6</span><span>Angebote erhalten</span></div>
             </div>
@@ -598,7 +594,10 @@
     const resultCount = document.getElementById('resultCount');
     const pageSpan = document.querySelector('.results-title span');
     const selectionText = document.getElementById('selectionText');
+    const selectedFiltersContainer = document.getElementById('selectedFiltersContainer');
+    const selectedTopicsContainer = document.getElementById('selectedTopicsContainer');
     const selectedProvidersContainer = document.getElementById('selectedProvidersContainer');
+    const themenfeldInput = document.getElementById('themenfeld');
     const globalSearch = document.getElementById('globalSearch');
     const locationSearch = document.getElementById('locationSearch');
     const radiusSelect = document.getElementById('radiusSelect');
@@ -751,24 +750,42 @@
       updateSelectionUI();
     }
 
+    function getSelectedDirectoryFilters(){
+      const focus = [...document.querySelectorAll('.filter-focus:checked')].map(el => el.value);
+      const industry = [...document.querySelectorAll('.filter-industry:checked')].map(el => el.value);
+      return {focus, industry};
+    }
+
+    function makeChip(label){
+      return `<span class="chip">${label}</span>`;
+    }
+
     let selectionError = false;
 
     function renderSelectedProviders(){
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
-      if(!selectedProvidersContainer) return;
+      if(!selectedProvidersContainer || !selectedFiltersContainer || !selectedTopicsContainer) return;
+      const {focus, industry} = getSelectedDirectoryFilters();
+      const selectedTopics = [...new Set(selected.flatMap(provider => provider.focus))];
+      const filterChips = [...focus, ...industry].map(makeChip).join('');
+      const topicChips = selectedTopics.map(makeChip).join('');
+      selectedFiltersContainer.innerHTML = filterChips ? `<div class="meta-group"><strong>Übernommene Filter</strong><div class="chips">${filterChips}</div></div>` : '';
+      selectedTopicsContainer.innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder</strong><div class="chips">${topicChips}</div></div>` : '';
       if(selected.length === 0){
         const errorClass = selectionError ? ' error' : '';
-        const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor Sie die Angebotsaufforderung veröffentlichen können.</small>' : '';
+        const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor Sie die Angebotsaufforderung veröffentlichen werden kann.</small>' : '';
         selectedProvidersContainer.innerHTML = `<div class="inline-empty${errorClass}">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.<br><a href="#directory" style="color:var(--red);font-weight:700;margin-top:8px;display:inline-block;">Zum Anbieterverzeichnis <span aria-hidden="true">↗</span></a>${errorText}</div>`;
         return;
       }
       selectionError = false;
-      selectedProvidersContainer.innerHTML = selected.map(provider => `
-        <div class="selected-pill">
-          <span>${provider.name}</span>
-          <button type="button" data-remove="${provider.id}" aria-label="${provider.name} entfernen">×</button>
-        </div>
-      `).join('');
+      selectedProvidersContainer.innerHTML = `<div class="selected-provider-list">
+          ${selected.map(provider => `
+            <div class="selected-pill">
+              <span>${provider.name}</span>
+              <button type="button" data-remove="${provider.id}" aria-label="${provider.name} entfernen">×</button>
+            </div>
+          `).join('')}
+        </div>`;
       selectedProvidersContainer.querySelectorAll('button[data-remove]').forEach(btn => {
         btn.addEventListener('click', () => {
           selectedIds = selectedIds.filter(id => id !== btn.dataset.remove);
@@ -859,6 +876,13 @@
       });
     }
 
+    function syncOfferThemenfelder(){
+      if(!themenfeldInput) return;
+      const selected = providers.filter(provider => selectedIds.includes(provider.id));
+      const topics = [...new Set(selected.flatMap(provider => provider.focus))];
+      themenfeldInput.value = topics.join(', ');
+    }
+
     function showPage(page){
       currentPage = page;
       document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
@@ -866,7 +890,10 @@
       document.getElementById(pageId).classList.add('active');
       document.querySelectorAll('[data-nav]').forEach(link => link.classList.remove('active'));
       document.querySelectorAll(`[data-nav="${page}"]`).forEach(link => link.classList.add('active'));
-      if(page === 'offer') renderSelectedProviders();
+      if(page === 'offer'){
+        renderSelectedProviders();
+        syncOfferThemenfelder();
+      }
       window.scrollTo({top:0,behavior:'smooth'});
     }
 
@@ -915,6 +942,7 @@
     });
 
     document.getElementById('gotoOfferBtn').addEventListener('click', () => {
+      syncOfferThemenfelder();
       showPage('offer');
       location.hash = 'offer';
     });
@@ -1012,13 +1040,7 @@
 
       if(!bedarf?.value.trim()) invalidFields.push({name:'bedarf', element:bedarf});
       if(!themenfeld?.value.trim()) invalidFields.push({name:'themenfeld', element:themenfeld});
-      if(!hauptziel?.value.trim()) invalidFields.push({name:'hauptziel', element:hauptziel});
-      if(!systeme?.value.trim()) invalidFields.push({name:'systeme', element:systeme});
-      if(!stack?.value.trim()) invalidFields.push({name:'stack', element:stack});
-      if(!anzahlSysteme?.value.trim()) invalidFields.push({name:'anzahlSysteme', element:anzahlSysteme.closest('.mini-stat')});
-      if(!anzahlNutzer?.value.trim()) invalidFields.push({name:'anzahlNutzer', element:anzahlNutzer.closest('.mini-stat')});
-      if(!anzahlStandorte?.value.trim()) invalidFields.push({name:'anzahlStandorte', element:anzahlStandorte.closest('.mini-stat')});
-      if(!branche?.value.trim()) invalidFields.push({name:'branche', element:branche.closest('.mini-stat')});
+      if(hauptziel && !hauptziel.value.trim()) invalidFields.push({name:'hauptziel', element:hauptziel});
       if(!budget || budget === 'Nicht angegeben') invalidFields.push({name:'budget', element:getFieldGroupElement('Budget')});
       if(!projektstart || projektstart === 'Nicht angegeben') invalidFields.push({name:'projektstart', element:getFieldGroupElement('Projektstart')});
       if(!entscheider || entscheider === 'Nicht angegeben') invalidFields.push({name:'entscheider', element:getFieldGroupElement('Sind Sie Entscheider?')});
