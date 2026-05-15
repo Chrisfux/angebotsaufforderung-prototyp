@@ -296,15 +296,13 @@
         <div class="directory-layout">
           <aside class="filter-panel">
             <div class="filter-head">≡ <small>Filter</small></div>
-            <div class="filter-section">
-              <div class="filter-title">IT-Sicherheitsschwerpunkte <span>⌃</span></div>
-              <input class="filter-search" type="text" placeholder="Schwerpunkt suchen...">
-              <div class="check-list">
-                <label class="check-row"><input type="checkbox" class="filter-focus" value="Cybersicherheit"><span>Cybersicherheit</span><span class="count">(117)</span></label>
-                <label class="check-row"><input type="checkbox" class="filter-focus" value="IT-Sicherheit"><span>IT-Sicherheit</span><span class="count">(109)</span></label>
-                <label class="check-row"><input type="checkbox" class="filter-focus" value="Beratung"><span>Beratung</span><span class="count">(109)</span></label>
+            <div class="filter-section" id="topicsFilterSection">
+              <div class="filter-title">Themenfelder <span>⌃</span></div>
+              <input class="filter-search" id="topicSearch" type="text" placeholder="Themenfeld suchen...">
+              <div class="check-list" id="topicCheckList">
+                <!-- Dynamisch aus Provider-Profilen erzeugte Themenfelder -->
               </div>
-              <a class="muted-link" href="#">mehr anzeigen (148)</a>
+              <a class="muted-link" href="#" id="topicMoreLink">mehr anzeigen (0)</a>
             </div>
             <div class="filter-section">
               <div class="filter-title">Bediente Branche <span>⌃</span></div>
@@ -323,10 +321,10 @@
             <div class="filter-section">
               <div class="filter-title">Unternehmenskategorie <span>⌃</span></div>
               <div class="check-list">
-                <label class="check-row"><input type="checkbox"><span>KMUs</span><span class="count">(180)</span></label>
-                <label class="check-row"><input type="checkbox"><span>Großunternehmen</span><span class="count">(171)</span></label>
-                <label class="check-row"><input type="checkbox"><span>Behörden</span><span class="count">(157)</span></label>
-                <label class="check-row"><input type="checkbox"><span>Kleinstunternehmen</span><span class="count">(102)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-category" value="KMUs"><span>KMUs</span><span class="count">(180)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-category" value="Großunternehmen"><span>Großunternehmen</span><span class="count">(171)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-category" value="Behörden"><span>Behörden</span><span class="count">(157)</span></label>
+                <label class="check-row"><input type="checkbox" class="filter-category" value="Kleinstunternehmen"><span>Kleinstunternehmen</span><span class="count">(102)</span></label>
               </div>
             </div>
             <div class="collapsed">Interaktive Liste <span>⌄</span></div>
@@ -569,21 +567,21 @@
 
   <script>
     const providers = [
-      {id:'securam',name:'CloudSphere Solutions',city:'Hamburg',industry:['Finanz- und Versicherungswesen','Öffentliche Verwaltung'],focus:['Cybersicherheit','Beratung'],tags:['Beratung IT-Sicherheit'],tier:'basis',logo:'CS',logoClass:'',cover:'pattern',distance:0,sub:'Ganzheitliche Beratung für ISMS, Compliance und Sicherheitsarchitekturen.'},
-      {id:'dacoso',name:'NexaGuard Security',city:'Langen',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Beratung IT-Sicherheit','BSI-Grundschutz','Netzwerk'],tier:'plus',logo:'NG',logoClass:'',cover:'tech',distance:42,sub:'Starke Netze + sichere Daten'},
-      {id:'ifis',name:'DataFort Labs',city:'Gelsenkirchen',industry:['Öffentliche Verwaltung','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['(Fach-)Hochschulen','Authentifizierung','Forschung'],tier:'plus',logo:'DF',logoClass:'',cover:'blue',distance:72,sub:'Vertrauenswürdigkeit und IT-Sicherheit'},
-      {id:'bcom',name:'FortiGate Systems',city:'Neustadt an der Weinstraße',industry:['Automobilindustrie','KRITIS'],focus:['Cybersicherheit','Beratung'],tags:['Awareness','Bedrohungsanalysen','SOC'],tier:'premium',logo:'FG',logoClass:'black',cover:'dark',distance:102,sub:'Cybersecurity Services - 24/7/365 aus Deutschland'},
-      {id:'kiwiko',name:'Veritas Shield AG',city:'Berlin',industry:['Handel und Dienstleistungen','Öffentliche Verwaltung'],focus:['IT-Sicherheit','Beratung'],tags:['Coaching','Strategie'],tier:'plus',logo:'VS',logoClass:'blue',cover:'pattern',distance:275,sub:'Kooperative IT-Sicherheitsberatung für Mittelstand und Verbünde.'},
-      {id:'glueckkanja',name:'Nimbus Cyberworks',city:'Offenbach',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Cloud (Computing) Security','Cyber Security as a Service'],tier:'plus',logo:'NC',logoClass:'blue',cover:'purple',distance:30,sub:'We Manage and Protect Microsoft Ecosystems at Scale'},
-      {id:'bytesnipers',name:'PulseSec Networks',city:'Bremen',industry:['Energie, Versorgung und Entsorgung','KRITIS'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Incident Response','OT Security'],tier:'basis',logo:'PS',logoClass:'black',cover:'blue',distance:300,sub:'Incident Response und Resilienzprogramme für kritische Infrastrukturen.'},
-      {id:'scutis',name:'Aegis Advisory',city:'Rosenheim',industry:['Gesundheitswesen','Öffentliche Verwaltung'],focus:['Beratung'],tags:['Compliance','DSGVO'],tier:'basis',logo:'AA',logoClass:'',cover:'red',distance:75,sub:'Pragmatische Beratung für Audits, Prozesse und regulatorische Sicherheit.'},
-      {id:'link11',name:'Sentinel Xpert',city:'Frankfurt am Main',industry:['Finanz- und Versicherungswesen','IT und Telekommunikation'],focus:['Cybersicherheit','Beratung'],tags:['Applikationssicherheit','Automatisierung','DDoS'],tier:'premium',logo:'SX',logoClass:'green',cover:'dark',distance:45,sub:'EMPOWERING YOUR BUSINESS SECURITY.'},
-      {id:'cybertech',name:'CyberTech Innovations',city:'München',industry:['IT und Telekommunikation','Handel und Dienstleistungen'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Firewall','VPN','Endpoint Security'],tier:'plus',logo:'CI',logoClass:'blue',cover:'tech',distance:50,sub:'Innovative Sicherheitslösungen für moderne Unternehmen.'},
-      {id:'secureflow',name:'SecureFlow GmbH',city:'Köln',industry:['Finanz- und Versicherungswesen','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['Risikoanalyse','Compliance','Audits'],tier:'basis',logo:'SF',logoClass:'',cover:'pattern',distance:80,sub:'Umfassende Beratung und Sicherheitsaudits.'},
-      {id:'netguard',name:'NetGuard Solutions',city:'Stuttgart',industry:['Automobilindustrie','Energie, Versorgung und Entsorgung'],focus:['IT-Sicherheit','Cybersicherheit'],tags:['Netzwerksicherheit','Monitoring','SIEM'],tier:'premium',logo:'NS',logoClass:'black',cover:'dark',distance:120,sub:'Professionelle Netzwerksicherheit und Überwachung.'},
-      {id:'datashield',name:'DataShield Advisors',city:'Hannover',industry:['Öffentliche Verwaltung','KRITIS'],focus:['Beratung'],tags:['Datenschutz','DSGVO','Privacy'],tier:'plus',logo:'DA',logoClass:'green',cover:'blue',distance:150,sub:'Experten für Datenschutz und Compliance.'},
-      {id:'threatstop',name:'ThreatStop Inc.',city:'Düsseldorf',industry:['Handel und Dienstleistungen','IT und Telekommunikation'],focus:['Cybersicherheit'],tags:['Threat Intelligence','Malware Protection','Phishing'],tier:'basis',logo:'TS',logoClass:'',cover:'red',distance:200,sub:'Schutz vor aktuellen Bedrohungen und Angriffen.'},
-      {id:'infosecpro',name:'InfoSec Pro',city:'Leipzig',industry:['Gesundheitswesen','Finanz- und Versicherungswesen'],focus:['IT-Sicherheit','Beratung'],tags:['Informationssicherheit','Training','Awareness'],tier:'plus',logo:'IP',logoClass:'blue',cover:'purple',distance:250,sub:'Professionelle Schulungen und Beratung zur IT-Sicherheit.'}
+      {id:'securam',name:'CloudSphere Solutions',city:'Hamburg',industry:['Finanz- und Versicherungswesen','Öffentliche Verwaltung'],focus:['Cybersicherheit','Beratung'],tags:['Beratung IT-Sicherheit'],tier:'basis',logo:'CS',logoClass:'',cover:'pattern',distance:0,sub:'Ganzheitliche Beratung für ISMS, Compliance und Sicherheitsarchitekturen.',category:'KMUs'},
+      {id:'dacoso',name:'NexaGuard Security',city:'Langen',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Beratung IT-Sicherheit','BSI-Grundschutz','Netzwerk'],tier:'plus',logo:'NG',logoClass:'',cover:'tech',distance:42,sub:'Starke Netze + sichere Daten',category:'Großunternehmen'},
+      {id:'ifis',name:'DataFort Labs',city:'Gelsenkirchen',industry:['Öffentliche Verwaltung','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['(Fach-)Hochschulen','Authentifizierung','Forschung'],tier:'plus',logo:'DF',logoClass:'',cover:'blue',distance:72,sub:'Vertrauenswürdigkeit und IT-Sicherheit',category:'Behörden'},
+      {id:'bcom',name:'FortiGate Systems',city:'Neustadt an der Weinstraße',industry:['Automobilindustrie','KRITIS'],focus:['Cybersicherheit','Beratung'],tags:['Awareness','Bedrohungsanalysen','SOC'],tier:'premium',logo:'FG',logoClass:'black',cover:'dark',distance:102,sub:'Cybersecurity Services - 24/7/365 aus Deutschland',category:'Großunternehmen'},
+      {id:'kiwiko',name:'Veritas Shield AG',city:'Berlin',industry:['Handel und Dienstleistungen','Öffentliche Verwaltung'],focus:['IT-Sicherheit','Beratung'],tags:['Coaching','Strategie'],tier:'plus',logo:'VS',logoClass:'blue',cover:'pattern',distance:275,sub:'Kooperative IT-Sicherheitsberatung für Mittelstand und Verbünde.',category:'KMUs'},
+      {id:'glueckkanja',name:'Nimbus Cyberworks',city:'Offenbach',industry:['Automobilindustrie','IT und Telekommunikation'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Cloud (Computing) Security','Cyber Security as a Service'],tier:'plus',logo:'NC',logoClass:'blue',cover:'purple',distance:30,sub:'We Manage and Protect Microsoft Ecosystems at Scale',category:'KMUs'},
+      {id:'bytesnipers',name:'PulseSec Networks',city:'Bremen',industry:['Energie, Versorgung und Entsorgung','KRITIS'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Incident Response','OT Security'],tier:'basis',logo:'PS',logoClass:'black',cover:'blue',distance:300,sub:'Incident Response und Resilienzprogramme für kritische Infrastrukturen.',category:'Kleinstunternehmen'},
+      {id:'scutis',name:'Aegis Advisory',city:'Rosenheim',industry:['Gesundheitswesen','Öffentliche Verwaltung'],focus:['Beratung'],tags:['Compliance','DSGVO'],tier:'basis',logo:'AA',logoClass:'',cover:'red',distance:75,sub:'Pragmatische Beratung für Audits, Prozesse und regulatorische Sicherheit.',category:'KMUs'},
+      {id:'link11',name:'Sentinel Xpert',city:'Frankfurt am Main',industry:['Finanz- und Versicherungswesen','IT und Telekommunikation'],focus:['Cybersicherheit','Beratung'],tags:['Applikationssicherheit','Automatisierung','DDoS'],tier:'premium',logo:'SX',logoClass:'green',cover:'dark',distance:45,sub:'EMPOWERING YOUR BUSINESS SECURITY.',category:'Großunternehmen'},
+      {id:'cybertech',name:'CyberTech Innovations',city:'München',industry:['IT und Telekommunikation','Handel und Dienstleistungen'],focus:['Cybersicherheit','IT-Sicherheit'],tags:['Firewall','VPN','Endpoint Security'],tier:'plus',logo:'CI',logoClass:'blue',cover:'tech',distance:50,sub:'Innovative Sicherheitslösungen für moderne Unternehmen.',category:'KMUs'},
+      {id:'secureflow',name:'SecureFlow GmbH',city:'Köln',industry:['Finanz- und Versicherungswesen','Gesundheitswesen'],focus:['Beratung','Cybersicherheit'],tags:['Risikoanalyse','Compliance','Audits'],tier:'basis',logo:'SF',logoClass:'',cover:'pattern',distance:80,sub:'Umfassende Beratung und Sicherheitsaudits.',category:'KMUs'},
+      {id:'netguard',name:'NetGuard Solutions',city:'Stuttgart',industry:['Automobilindustrie','Energie, Versorgung und Entsorgung'],focus:['IT-Sicherheit','Cybersicherheit'],tags:['Netzwerksicherheit','Monitoring','SIEM'],tier:'premium',logo:'NS',logoClass:'black',cover:'dark',distance:120,sub:'Professionelle Netzwerksicherheit und Überwachung.',category:'Großunternehmen'},
+      {id:'datashield',name:'DataShield Advisors',city:'Hannover',industry:['Öffentliche Verwaltung','KRITIS'],focus:['Beratung'],tags:['Datenschutz','DSGVO','Privacy'],tier:'plus',logo:'DA',logoClass:'green',cover:'blue',distance:150,sub:'Experten für Datenschutz und Compliance.',category:'Behörden'},
+      {id:'threatstop',name:'ThreatStop Inc.',city:'Düsseldorf',industry:['Handel und Dienstleistungen','IT und Telekommunikation'],focus:['Cybersicherheit'],tags:['Threat Intelligence','Malware Protection','Phishing'],tier:'basis',logo:'TS',logoClass:'',cover:'red',distance:200,sub:'Schutz vor aktuellen Bedrohungen und Angriffen.',category:'KMUs'},
+      {id:'infosecpro',name:'InfoSec Pro',city:'Leipzig',industry:['Gesundheitswesen','Finanz- und Versicherungswesen'],focus:['IT-Sicherheit','Beratung'],tags:['Informationssicherheit','Training','Awareness'],tier:'plus',logo:'IP',logoClass:'blue',cover:'purple',distance:250,sub:'Professionelle Schulungen und Beratung zur IT-Sicherheit.',category:'KMUs'}
     ];
 
     let selectedIds = [];
@@ -591,6 +589,8 @@
     let currentPage = 'directory';
     let currentPaginationPage = 1;
     const itemsPerPage = 12;
+    let topicsExpanded = false;
+    const topicInitialLimit = 3;
 
     const providerGrid = document.getElementById('providerGrid');
     const resultCount = document.getElementById('resultCount');
@@ -634,16 +634,66 @@
     function getFilteredProviders(){
       const industries = getActiveFilters('.filter-industry');
       const focuses = getActiveFilters('.filter-focus');
+      const categories = getActiveFilters('.filter-category');
       const searchTerm = globalSearch?.value.trim().toLowerCase();
       const locationTerm = locationSearch?.value.trim().toLowerCase();
       const radius = Number(radiusSelect?.value || 0);
       return providers.filter(provider => {
         const industryMatch = industries.length === 0 || industries.some(i => provider.industry.includes(i));
-        const focusMatch = focuses.length === 0 || focuses.some(f => provider.focus.includes(f));
+        const categoryMatch = categories.length === 0 || categories.some(c => provider.category === c);
+        // topics filter should match both provider.focus and provider.tags
+        const providerTopics = [...new Set([...(provider.focus||[]), ...(provider.tags||[])] )];
+        const focusMatch = focuses.length === 0 || focuses.some(f => providerTopics.includes(f));
         const searchMatch = !searchTerm || [provider.name, provider.sub, ...provider.tags, ...provider.industry, ...provider.focus].some(value => value.toLowerCase().includes(searchTerm));
         const locationMatch = !locationTerm || provider.city.toLowerCase().includes(locationTerm) || provider.industry.some(value => value.toLowerCase().includes(locationTerm));
         const distanceMatch = radius === 0 || !locationTerm || provider.distance <= radius;
-        return industryMatch && focusMatch && searchMatch && locationMatch && distanceMatch;
+        return industryMatch && categoryMatch && focusMatch && searchMatch && locationMatch && distanceMatch;
+      });
+    }
+
+    function renderTopicFilters(){
+      const container = document.getElementById('topicCheckList');
+      const moreLink = document.getElementById('topicMoreLink');
+      if(!container) return;
+      const topicCounts = {};
+      providers.forEach(p => {
+        (p.focus || []).forEach(f => { topicCounts[f] = (topicCounts[f] || 0) + 1; });
+        (p.tags || []).forEach(t => { topicCounts[t] = (topicCounts[t] || 0) + 1; });
+      });
+      const topics = Object.keys(topicCounts).sort((a,b) => topicCounts[b] - topicCounts[a] || a.localeCompare(b));
+      container.innerHTML = topics.map((t, idx) => `<label class="check-row" data-idx="${idx}"><input type="checkbox" class="filter-focus" value="${t}"><span>${t}</span><span class="count">(${topicCounts[t]})</span></label>`).join('');
+      if(moreLink) moreLink.textContent = `mehr anzeigen (${topics.length})`;
+      // initially hide beyond initial limit
+      document.querySelectorAll('#topicCheckList .check-row').forEach((row, idx) => {
+        if(!topicsExpanded && idx >= topicInitialLimit) row.style.display = 'none';
+      });
+      // click handler toggles expand/collapse
+      if(moreLink){
+        moreLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          topicsExpanded = !topicsExpanded;
+          document.querySelectorAll('#topicCheckList .check-row').forEach((row, idx) => {
+            row.style.display = topicsExpanded ? '' : (idx < topicInitialLimit ? '' : 'none');
+          });
+          moreLink.textContent = topicsExpanded ? `weniger anzeigen (${topics.length})` : `mehr anzeigen (${topics.length})`;
+        });
+      }
+    }
+
+    function updateFilterCounts(){
+      // Update category counts
+      document.querySelectorAll('.filter-category').forEach(input => {
+        const val = input.value;
+        const count = providers.filter(p => p.category === val).length;
+        const el = input.parentElement.querySelector('.count');
+        if(el) el.textContent = `(${count})`;
+      });
+      // Update industry counts
+      document.querySelectorAll('.filter-industry').forEach(input => {
+        const val = input.value;
+        const count = providers.filter(p => Array.isArray(p.industry) && p.industry.includes(val)).length;
+        const el = input.parentElement.querySelector('.count');
+        if(el) el.textContent = `(${count})`;
       });
     }
 
@@ -768,11 +818,11 @@
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
       if(!selectedProvidersContainer || !selectedFiltersContainer || !selectedTopicsContainer) return;
       const {focus, industry} = getSelectedDirectoryFilters();
-      const selectedTopics = [...new Set(selected.flatMap(provider => provider.focus))];
+      const selectedTopics = [...new Set(selected.flatMap(provider => [...(provider.focus||[]), ...(provider.tags||[])]))];
       const filterChips = [...focus, ...industry].map(makeChip).join('');
       const topicChips = selectedTopics.map(makeChip).join('');
       selectedFiltersContainer.innerHTML = filterChips ? `<div class="meta-group"><strong>Übernommene Filter</strong><div class="chips">${filterChips}</div></div>` : '';
-      selectedTopicsContainer.innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder</strong><div class="chips">${topicChips}</div></div>` : '';
+      selectedTopicsContainer.innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder der Anbieter</strong><div class="chips">${topicChips}</div></div>` : '';
       if(selected.length === 0){
         const errorClass = selectionError ? ' error' : '';
         const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor Sie die Angebotsaufforderung veröffentlichen werden kann.</small>' : '';
@@ -881,7 +931,7 @@
     function syncOfferThemenfelder(){
       if(!themenfeldInput) return;
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
-      const topics = [...new Set(selected.flatMap(provider => provider.focus))];
+      const topics = [...new Set(selected.flatMap(provider => [...(provider.focus||[]), ...(provider.tags||[])]))];
       themenfeldInput.value = topics.join(', ');
     }
 
@@ -911,8 +961,28 @@
 
     setupPlaceholderBehavior(globalSearch);
     setupPlaceholderBehavior(locationSearch);
+    // Render topic filters dynamically from provider profiles
+    renderTopicFilters();
+    // Update counts for categories and industries
+    updateFilterCounts();
+    const topicSearch = document.getElementById('topicSearch');
+    if(topicSearch){
+      setupPlaceholderBehavior(topicSearch);
+      topicSearch.addEventListener('input', () => {
+        const term = topicSearch.value.trim().toLowerCase();
+        document.querySelectorAll('#topicCheckList .check-row').forEach((row, idx) => {
+          const lbl = row.textContent.toLowerCase();
+          if(term){
+            row.style.display = lbl.includes(term) ? '' : 'none';
+          } else {
+            // restore collapsed state when search cleared
+            row.style.display = (!topicsExpanded && idx >= topicInitialLimit) ? 'none' : '';
+          }
+        });
+      });
+    }
 
-    document.querySelectorAll('.filter-industry, .filter-focus').forEach(input => input.addEventListener('change', () => { currentPaginationPage = 1; renderProviders(); }));
+    document.querySelectorAll('.filter-industry, .filter-focus, .filter-category').forEach(input => input.addEventListener('change', () => { currentPaginationPage = 1; renderProviders(); }));
     globalSearch.addEventListener('input', () => { currentPaginationPage = 1; renderProviders(); });
     locationSearch.addEventListener('input', () => { currentPaginationPage = 1; renderProviders(); });
     radiusSelect.addEventListener('change', () => { currentPaginationPage = 1; renderProviders(); });
