@@ -422,20 +422,6 @@
                 <label class="label required" for="bedarf">Beschreiben Sie klar, was Sie angeboten bekommen möchten</label>
                 <textarea id="bedarf" style="min-height:140px;" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
               </div>
-              <!--
-              <div class="grid-2">
-                <div>
-                  <label class="label" for="hauptziel">Was ist Ihr Hauptziel?</label>
-                  <textarea id="hauptziel" placeholder="Optionales Freitextfeld ergänzen" rows="1"></textarea>
-                  <div class="chips">
-                    <span class="chip">Sicherheitslücken finden</span>
-                    <span class="chip">Compliance erfüllen</span>
-                    <span class="chip">Angriffe erkennen/verhindern</span>
-                    <span class="chip">Sicherheitsniveau verbessern</span>
-                  </div>
-                </div>
-              </div>
-              -->
               <textarea id="themenfeld" style="display:none"></textarea>
             </div>
           </section>
@@ -443,6 +429,37 @@
           <section class="card section">
             <div class="section-head">
               <div class="section-kicker">Schritt 3</div>
+              <h3>Kontaktdaten</h3>
+              <div class="section-sub">Geben Sie hier an, wer beim Anbieter als Ansprechpartner:in für Rückfragen dient.</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:22px;">
+                <button type="button" id="loadContactDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
+              </div>
+              <div style="margin-bottom:18px;">
+                <label class="label" for="contactName">Ansprechpartner /in</label>
+                <input type="text" id="contactName" placeholder="Vor- und Nachname (für Anbieter)" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+                <div>
+                  <label class="label" for="contactEmail">E-Mail für Rückfragen</label>
+                  <input type="text" id="contactEmail" placeholder="name@beispiel.de" />
+                </div>
+                <div>
+                  <label class="label optional" for="contactPhone">Telefon</label>
+                  <input type="text" id="contactPhone" placeholder="z. B. +49 30 1234567" />
+                </div>
+              </div>
+              <div style="margin-bottom:18px;">
+                <label class="label optional" for="contactCompany">Ihr Unternehmen</label>
+                <input type="text" id="contactCompany" placeholder="Firma / Organisation" />
+              </div>
+            </div>
+          </section>
+
+          <section class="card section">
+            <div class="section-head">
+              <div class="section-kicker">Schritt 4</div>
               <h3>Rahmenbedingungen</h3>
               <div class="section-sub">Budget, Projektstart, Entscheiderstatus, Vergabeprozess und Prioritäten sind als feste Felder im Anforderungsdokument genannt.</div>
             </div>
@@ -483,7 +500,7 @@
 
           <section class="card section">
             <div class="section-head">
-              <div class="section-kicker">Schritt 4</div>
+              <div class="section-kicker">Schritt 5</div>
               <h3>Scope und Systemlandschaft</h3>
               <div class="section-sub">Optional: Ergänzen Sie Ihre Unternehmens-Eckdaten, oder übernehmen Sie diese aus Ihrem Profil.</div>
             </div>
@@ -506,7 +523,7 @@
 
           <section class="card section">
             <div class="section-head">
-              <div class="section-kicker">Schritt 5</div>
+              <div class="section-kicker">Schritt 6</div>
               <h3>Veröffentlichung und Matching</h3>
               <div class="section-sub">Ihre Anfrage wird nun veröffentlicht und automatisch passenden IT-Sicherheitsanbietern zugeteilt.</div>
             </div>
@@ -517,7 +534,7 @@
                 <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Angebote erhalten</strong><p>Anbieter können direkt Angebote erstellen und Ihnen zusenden.</p></div></div>
               </div>
               <div class="actions">
-                <a href="#" id="publishOfferBtn" class="btn btn-primary">Angebotsaufforderung veröffentlichen <i class="material-icons" style="font-size:18px;vertical-align:middle;">share</i></a>
+                <a href="#" id="publishOfferBtn" class="btn btn-primary">Angebotsaufforderung versenden <i class="material-icons" style="font-size:18px;vertical-align:middle;">share</i></a>
                 <a href="#" class="btn btn-secondary">Entwurf speichern</a>
               </div>
               <div class="footer-note">Prototypischer CTA-Block für den späteren Übergang in den Angebotsprozess.</div>
@@ -531,10 +548,11 @@
             <div class="progress">
               <div class="progress-step active"><span>1</span><span>Vorauswahl Anbieter</span></div>
               <div class="progress-step"><span>2</span><span>Bedarf beschreiben</span></div>
-              <div class="progress-step"><span>3</span><span>Rahmenbedingungen</span></div>
-              <div class="progress-step"><span>4</span><span>Scope &amp; Systemlandschaft</span></div>
-              <div class="progress-step"><span>5</span><span>Veröffentlichung &amp; Matching</span></div>
-              <div class="progress-step"><span>6</span><span>Angebote erhalten</span></div>
+              <div class="progress-step"><span>3</span><span>Kontaktdaten</span></div>
+              <div class="progress-step"><span>4</span><span>Rahmenbedingungen</span></div>
+              <div class="progress-step"><span>5</span><span>Scope &amp; Systemlandschaft</span></div>
+              <div class="progress-step"><span>6</span><span>Veröffentlichung &amp; Matching</span></div>
+              <div class="progress-step"><span>7</span><span>Angebote erhalten</span></div>
             </div>
           </section>
 
@@ -825,7 +843,7 @@
       selectedTopicsContainer.innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder der Anbieter</strong><div class="chips">${topicChips}</div></div>` : '';
       if(selected.length === 0){
         const errorClass = selectionError ? ' error' : '';
-        const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor Sie die Angebotsaufforderung veröffentlichen werden kann.</small>' : '';
+        const errorText = selectionError ? '<small>Mindestens ein Unternehmen muss ausgewählt werden, bevor die Angebotsaufforderung versendet werden kann.</small>' : '';
         selectedProvidersContainer.innerHTML = `<div class="inline-empty${errorClass}">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.<br><a href="#directory" style="color:var(--red);font-weight:700;margin-top:8px;display:inline-block;">Zum Anbieterverzeichnis <span aria-hidden="true">↗</span></a>${errorText}</div>`;
         return;
       }
@@ -1019,6 +1037,19 @@
       location.hash = 'offer';
     });
 
+    document.getElementById('loadContactDataBtn').addEventListener('click', () => {
+      const mockContactData = {
+        contactName: 'Max Mustermann',
+        contactEmail: 'max.mustermann@example.com',
+        contactPhone: '+49 30 12345678',
+        contactCompany: 'Beispiel GmbH'
+      };
+      document.getElementById('contactName').value = mockContactData.contactName;
+      document.getElementById('contactEmail').value = mockContactData.contactEmail;
+      document.getElementById('contactPhone').value = mockContactData.contactPhone;
+      document.getElementById('contactCompany').value = mockContactData.contactCompany;
+    });
+
     document.getElementById('loadProfileDataBtn').addEventListener('click', () => {
       const mockProfileData = {
         anzahlSysteme: '45',
@@ -1068,13 +1099,14 @@
     if(location.hash === '#offer') showPage('offer');
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>
     const publishOfferBtn = document.getElementById('publishOfferBtn');
     if(publishOfferBtn){
       publishOfferBtn.addEventListener('click', handlePublishOffer);
     }
 
-    function handlePublishOffer(e){
+    async function handlePublishOffer(e){
       e.preventDefault();
       const validation = validateOfferSubmission();
       clearValidationHighlights();
@@ -1102,7 +1134,7 @@
       const confirmed = window.confirm('Sind Sie sicher, dass Ihre Angaben korrekt sind? Dieser Vorgang kann nicht zurückgezogen werden.');
       if(!confirmed) return;
 
-      generatePDF();
+      await generatePDF();
       showSuccessPage();
     }
 
@@ -1176,40 +1208,12 @@
         return;
       }
       try {
-        const doc = new jsPDFClass();
-        doc.setFontSize(20);
-        doc.text('Angebotsaufforderung IT-Sicherheit', 20, 30);
-        doc.setFontSize(14);
-        let y = 50;
-
-        const selectedNames = selectedIds.map(id => providers.find(p => p.id === id)?.name).filter(Boolean);
-        doc.text('Ausgewählte Anbieter:', 20, y);
-        y += 10;
-        selectedNames.forEach(name => {
-          doc.text(`- ${name}`, 30, y);
-          y += 8;
-        });
-        y += 10;
-
-        doc.text('Bedarf:', 20, y);
-        y += 10;
-        doc.text(document.getElementById('bedarf').value || 'Nicht angegeben', 30, y);
-        y += 20;
-
-        doc.text('Themenfeld:', 20, y);
-        y += 10;
-        doc.text(document.getElementById('themenfeld').value || 'Nicht angegeben', 30, y);
-        y += 20;
-
-        doc.text('Hauptziel:', 20, y);
-        y += 10;
-        doc.text(document.getElementById('hauptziel').value || 'Nicht angegeben', 30, y);
-        y += 20;
-
-        doc.text('IT-Systeme:', 20, y);
-        y += 10;
-        doc.text(document.getElementById('systeme').value || 'Nicht angegeben', 30, y);
-        y += 20;
+        const contactName = document.getElementById('contactName')?.value || '';
+        const contactEmail = document.getElementById('contactEmail')?.value || '';
+        const contactPhone = document.getElementById('contactPhone')?.value || '';
+        const contactCompany = document.getElementById('contactCompany')?.value || '';
+        const bedarfText = document.getElementById('bedarf')?.value || 'Nicht angegeben';
+        const themenText = document.getElementById('themenfeld')?.value || 'Nicht angegeben';
 
         const details = [
           ['Anzahl IT-Systeme', document.getElementById('anzahlSysteme')?.value],
@@ -1221,21 +1225,99 @@
           ['Entscheider', getActiveChipsText('Sind Sie Entscheider?')],
           ['Vergabeprozess', getActiveChipsText('Vergabeprozess')],
           ['Worauf Wert gelegt', getActiveChipsText('Worauf legen Sie Wert?')],
-          ['Weitere Hinweise', document.getElementById('hinweis').value]
+          ['Weitere Hinweise', document.getElementById('hinweis')?.value]
         ];
 
-        details.forEach(([label, value]) => {
-          if (value && value !== 'Nicht angegeben') {
-            if(y > 270){
-              doc.addPage();
-              y = 20;
+        function sanitizeFilename(str){
+          return (str || 'Anbieter').replace(/[^a-z0-9 _-]/gi,'').trim().replace(/\s+/g,'_');
+        }
+
+        // Generate one PDF per selected provider and either download individually
+        // (single) or package into a ZIP (multiple) to avoid browser download blocking.
+        const files = [];
+        selectedIds.forEach(id => {
+          const provider = providers.find(p => p.id === id);
+          const doc = new jsPDFClass();
+          doc.setFontSize(18);
+          const providerTitle = provider ? `Angebotsaufforderung für ${provider.name}` : 'Angebotsaufforderung';
+          doc.text(providerTitle, 20, 28);
+
+          doc.setFontSize(11);
+          let y = 44;
+          doc.text(`Ansprechpartner: ${contactName || 'Nicht angegeben'}`, 20, y); y += 7;
+          doc.text(`Firma: ${contactCompany || 'Nicht angegeben'}`, 20, y); y += 7;
+          doc.text(`E-Mail: ${contactEmail || 'Nicht angegeben'}`, 20, y); y += 7;
+          if(contactPhone) { doc.text(`Telefon: ${contactPhone}`, 20, y); y += 9; } else { y += 2; }
+
+          doc.setFontSize(12);
+          doc.text('Bedarf:', 20, y); y += 6;
+          const bedarfLines = doc.splitTextToSize(bedarfText, 170);
+          doc.text(bedarfLines, 25, y); y += bedarfLines.length * 6 + 6;
+
+          doc.text('Themenfeld:', 20, y); y += 6;
+          const themenLines = doc.splitTextToSize(themenText, 170);
+          doc.text(themenLines, 25, y); y += themenLines.length * 6 + 8;
+
+          details.forEach(([label, value]) => {
+            if(value && value !== 'Nicht angegeben'){
+              const line = `${label}: ${value}`;
+              const wrapped = doc.splitTextToSize(line, 170);
+              if(y + wrapped.length * 6 > 280){ doc.addPage(); y = 20; }
+              doc.text(wrapped, 20, y);
+              y += wrapped.length * 6 + 4;
             }
-            doc.text(`${label}: ${value}`, 20, y);
-            y += 10;
-          }
+          });
+
+          const filename = `Angebotsaufforderung_${sanitizeFilename(provider ? provider.name : id)}.pdf`;
+          const blob = doc.output('blob');
+          files.push({name: filename, blob});
         });
 
-        doc.save('Angebotsaufforderung.pdf');
+        if(files.length === 0){
+          console.warn('Keine Anbieter ausgewählt, keine PDFs erzeugt.');
+          return;
+        }
+
+        if(files.length === 1){
+          // Single file: trigger direct download
+          const f = files[0];
+          const url = URL.createObjectURL(f.blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = f.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        } else {
+          // Multiple files: create ZIP
+          if(typeof JSZip === 'undefined'){
+            // fallback: download first file only
+            const f = files[0];
+            const url = URL.createObjectURL(f.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = f.name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            console.warn('JSZip nicht verfügbar, nur erste PDF wurde heruntergeladen.');
+            return;
+          }
+          const zip = new JSZip();
+          files.forEach(f => zip.file(f.name, f.blob));
+          zip.generateAsync({type:'blob'}).then(zipBlob => {
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Angebotsaufforderungen_${Date.now()}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+          });
+        }
       } catch(error) {
         console.error('PDF generation error', error);
       }
