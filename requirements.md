@@ -23,6 +23,13 @@
 - Die Auswahlsteuerung soll auch nach Paginationwechseln bestehen bleiben und den aktuellen Modus beibehalten.
 - Der erweiterte Bereich darf keine vollständige Seitenaktualisierung auslösen, sondern muss inline in der bestehenden Seite erscheinen.
 - Die Steuerungsleiste soll prominent genug sein, um das Auslösen von Aktionen wie „Alle gefilterten auswählen“ oder „Auswahl beenden“ direkt möglich zu machen.
+- Das Login-Dialogfenster soll als Overlay mit leicht getöntem Hintergrund erscheinen.
+- Das Overlay darf die Seite nicht verlassen, wenn der Nutzer nur den Schließen-Button verwendet.
+- Der Anbieterverzeichnisbereich soll nach Aktivierung reduziert Platz einnehmen, wenn er zusammengeklappt ist.
+- Der aktive Auswahlmodus soll jederzeit erkennbar sein, z. B. durch zusätzliche Kopfzeile, farbige Markierung oder Text.
+- Innerhalb des Auswahlmodus sollen Aktionen wie „Auswahl beenden“ und „Auswahl leeren“ immer erreichbar bleiben.
+- Wenn der Nutzer die Seite verlässt oder den Modus beendet, soll der Status der eingeloggenen Session erhalten bleiben, damit der Auswahlmodus bei Rückkehr nicht unerwartet gesperrt ist.
+- Nicht eingeloggte Nutzer dürfen keine Auswahl treffen; der Zugang zu allen Auswahlaktionen ist erst nach Login verfügbar.
 
 ## Auswahlverhalten
 
@@ -38,9 +45,6 @@
 - „Auswahl leeren“ entfernt alle aktuellen Selektionen und setzt den Zähler auf 0.
 - „Alle gefilterten auswählen“ wählt alle aktuell sichtbaren Anbieter aus dem aktuellen Filter- und Sucheergebnis aus.
 - Der Zähler der ausgewählten Anbieter aktualisiert sich sofort bei jedem Auswahl- oder Deselektionsvorgang.
-
-## Technische Hinweise
-
 - Die Auswahl von Anbietern muss seitenübergreifend persistent bleiben, solange der Auswahlmodus aktiv ist.
 - Der Status der ausgewählten Anbieter soll pagination-unabhängig im State gehalten werden.
 - Das State-Modell soll eine Liste eindeutiger Anbieter-IDs oder Vergleichskennzahlen enthalten.
@@ -50,30 +54,23 @@
 - Für prototypische Zwecke müssen alle interaktiven Elemente verständliche Beschriftungen und klare visuelle Zustände besitzen.
 - Die wichtigsten Aktionen im Auswahlmodus müssen auch über Tastaturbedienung erreichbar sein.
 
-## Erweiterte Anforderungen
-
-- Das Login-Dialogfenster soll als Overlay mit leicht getöntem Hintergrund erscheinen.
-- Das Overlay darf die Seite nicht verlassen, wenn der Nutzer nur den Schließen-Button verwendet.
-- Der Anbieterverzeichnisbereich soll nach Aktivierung reduziert Platz einnehmen, wenn er zusammengeklappt ist.
-- Der aktive Auswahlmodus soll jederzeit erkennbar sein, z. B. durch zusätzliche Kopfzeile, farbige Markierung oder Text.
-- Innerhalb des Auswahlmodus sollen Aktionen wie „Auswahl beenden“ und „Auswahl leeren“ immer erreichbar bleiben.
-- Wenn der Nutzer die Seite verlässt oder den Modus beendet, soll der Status der eingeloggenen Session erhalten bleiben, damit der Auswahlmodus bei Rückkehr nicht unerwartet gesperrt ist.
-- Nicht eingeloggte Nutzer dürfen keine Auswahl treffen; der Zugang zu allen Auswahlaktionen ist erst nach Login verfügbar.
-
 ## Angebotsaufforderungs-Seite
 
 - Die Angebotsaufforderungs-Seite soll nur über den aktiven Auswahlmodus des Anbieterverzeichnisses zugänglich sein.
 - Auf der Seite müssen ausgewählte Anbieter, Kontaktinformationen und Angebotsdetails klar strukturiert sein.
 - Die Seite soll als mehrstufiger Prozess umgesetzt werden:
-  - Schritt 1: Anbieterübersicht / Auswahl bestätigen
-  - Schritt 2: Kontaktinformationen erfassen oder aus Profil laden
-  - Schritt 3: Angebotsinhalt prüfen und PDF/ZIP erzeugen
+  - Schritt 1: Darstellung der ausgewählten Anbieter
+  - Schritt 2: Bedarf beschreiben mit text-input field
+  - Schritt 3: Kontaktdaten, die per Button aus Profil übernommen werden können
+  - Schritt 4: Rahmenbedingungen mit optionalem text-input field
+  - Schritt 5: Optionaler Scope und Systemlandschaft Bereich
+  - Schritt 6: Veröffentlcihung und Matching mit CTA Button
 - Es muss klar angezeigt werden, wie viele Anbieter in der Angebotsaufforderung enthalten sind.
 - Die Kontaktdaten sollen optional aus dem Nutzerprofil geladen werden können und gleichzeitig manuell editierbar sein.
 - Pflichtfelder für den Angebotsweg müssen klar gekennzeichnet sein (z. B. Name, E-Mail, Telefonnummer, Unternehmen).
 - Bei unvollständigen Kontaktdaten muss eine freundliche Fehlermeldung angezeigt werden, bevor der nächste Schritt aktiviert wird.
-- Die Seite soll den Nutzer über den Verlauf des Prozesses informieren (rechte Seitenleiste mit Schritten-Übersicht)
-- Der Button „Angebotsaufforderung erstellen“ soll erst im letzten Schritt aktiv sein und nur, wenn mindestens ein Anbieter ausgewählt wurde und gültige Kontaktdaten vorliegen.
+- Die Seite soll den Nutzer über den Verlauf des Prozesses informieren (rechte Seitenleiste mit Schritten-Übersicht).
+- Der Button „Angebotsaufforderung erstellen“ ist durchgehend aktiv, bei Ausführung des Buttons bei fehlenden Pflichtfeldern werden diese markiert und es wir automatisch zu diesen "gesprungen"
 - Beim Erstellen der Angebotsaufforderung sollen die getätigten Eingaben des Anwenders mit den Inhalte zusammengefasst als PDF Dokument an die jeweiligen ausgewählten Anbieter per Mail geschickt werden.
 - Jeder PDF-Eintrag soll die Anbieterbezeichnung, Kontaktdaten, Angebotsdetails und ggf. Angebotsvalidierung enthalten.
 - Es muss eine Bestätigungsmeldung geben, nachdem die Angebotsaufforderungen versendet wurden.

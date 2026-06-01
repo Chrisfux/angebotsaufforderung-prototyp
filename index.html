@@ -247,6 +247,14 @@
     .pagination button{background:#fff;border:1px solid var(--border);padding:8px 12px;cursor:pointer;border-radius:4px}
     .pagination button.active{background:var(--red);color:#fff;border-color:var(--red)}
     .pagination button:disabled{background:#f0f0f0;color:#ccc;cursor:not-allowed}
+    .form-modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(17,25,39,.54);padding:16px;z-index:200}
+    .form-modal.hidden{display:none}
+    .form-modal-card{background:#fff;border-radius:12px;max-width:950px;width:100%;box-shadow:0 18px 60px rgba(0,0,0,.18);position:relative;display:flex;flex-direction:column;max-height:90vh}
+    .form-modal-header{padding:24px 28px;border-bottom:1px solid #ecf0f3;position:relative}
+    .form-modal-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border:none;border-radius:50%;background:rgba(0,0,0,.05);color:#1f1f1f;cursor:pointer;display:grid;place-items:center;font-size:20px}
+    .form-modal h2{margin:0;font-size:24px;color:#202a33;font-weight:700}
+    .form-modal-body{flex:1;overflow-y:auto;padding:24px 28px}
+    .form-modal-footer{padding:24px 28px;border-top:1px solid #ecf0f3;display:flex;gap:10px;justify-content:flex-end}
   </style>
 </head>
 <body>
@@ -280,6 +288,143 @@
       <p>Um Anbieter auszuwählen und eine Angebotsaufforderung zu erstellen, müssen Sie sich im System anmelden. In dieser Prototyp-Version können Sie den Login über unseren Login-Screen testen.</p>
       <div class="login-modal-actions">
         <a href="login.html" class="btn btn-primary">Zum Login</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="formModal" class="form-modal hidden" role="dialog" aria-modal="true" aria-labelledby="formModalTitle">
+    <div class="form-modal-card">
+      <div class="form-modal-header">
+        <h2 id="formModalTitle">Angebotsaufforderung <span style="color:var(--red);">IT-Sicherheit</span></h2>
+        <button type="button" id="formModalClose" class="form-modal-close" aria-label="Dialog schließen">×</button>
+      </div>
+      <div class="form-modal-body">
+        <section class="card section">
+          <div class="section-head">
+            <div class="section-kicker">SCHRITT 1</div>
+            <h3>Ihre Vorauswahl aus dem Anbieterverzeichnis</h3>
+            <div class="section-sub">Die ausgewählten Unternehmen wurden aus dem Verzeichnis übernommen und können hier wieder entfernt werden.</div>
+          </div>
+          <div class="section-body">
+            <div id="modalSelectedProvidersContainer" class="selected-providers"></div>
+            <div id="modalSelectedFiltersContainer" class="chips"></div>
+            <div id="modalSelectedTopicsContainer" class="chips"></div>
+          </div>
+        </section>
+
+        <section class="card section">
+          <div class="section-head">
+            <div class="section-kicker">Schritt 2</div>
+            <h3>Bedarf beschreiben</h3>
+            <div class="section-sub">Erfassen Sie, was Sie angeboten bekommen möchten und worum es fachlich geht.</div>
+          </div>
+          <div class="section-body">
+            <div style="margin-bottom:18px;">
+              <label class="label required" for="modalBedarf">Beschreiben Sie klar, was Sie angeboten bekommen möchten</label>
+              <textarea id="modalBedarf" style="min-height:140px;" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
+            </div>
+            <textarea id="modalThemenfeld" style="display:none"></textarea>
+          </div>
+        </section>
+
+        <section class="card section">
+          <div class="section-head">
+            <div class="section-kicker">Schritt 3</div>
+            <h3>Kontaktdaten</h3>
+            <div class="section-sub">Geben Sie hier an, wer beim Anbieter als Ansprechpartner:in für Rückfragen dient.</div>
+          </div>
+          <div class="section-body">
+            <div style="margin-bottom:22px;">
+              <button type="button" id="modalLoadContactDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
+            </div>
+            <div style="margin-bottom:18px;">
+              <label class="label" for="modalContactName">Ansprechpartner /in</label>
+              <input type="text" id="modalContactName" placeholder="Vor- und Nachname (für Anbieter)" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+              <div>
+                <label class="label" for="modalContactEmail">E-Mail für Rückfragen</label>
+                <input type="text" id="modalContactEmail" placeholder="name@beispiel.de" />
+              </div>
+              <div>
+                <label class="label optional" for="modalContactPhone">Telefon</label>
+                <input type="text" id="modalContactPhone" placeholder="z. B. +49 30 1234567" />
+              </div>
+            </div>
+            <div style="margin-bottom:18px;">
+              <label class="label optional" for="modalContactCompany">Ihr Unternehmen</label>
+              <input type="text" id="modalContactCompany" placeholder="Firma / Organisation" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card section">
+          <div class="section-head">
+            <div class="section-kicker">Schritt 4</div>
+            <h3>Rahmenbedingungen</h3>
+            <div class="section-sub">Budget, Projektstart, Entscheiderstatus, Vergabeprozess und Prioritäten sind als feste Felder im Anforderungsdokument genannt.</div>
+          </div>
+          <div class="section-body">
+            <div class="grid-2" style="margin-bottom:18px;">
+              <div>
+                <label class="label required">Budget</label>
+                <div class="chips" data-field="budget"><span class="chip">&lt; 10k</span><span class="chip">10–50k</span><span class="chip">50–100k</span><span class="chip">100k+</span></div>
+                <span class="hint">Nur eine Auswahl vorgesehen.</span>
+              </div>
+              <div>
+                <label class="label required">Projektstart</label>
+                <div class="chips" data-field="projektstart"><span class="chip">Sofort</span><span class="chip">&lt; 1 Monat</span><span class="chip">1–3 Monate</span><span class="chip">4 Monate+</span></div>
+                <span class="hint">Nur eine Auswahl vorgesehen.</span>
+              </div>
+              <div>
+                <label class="label required">Sind Sie Entscheider?</label>
+                <div class="chips" data-field="entscheider"><span class="chip">Ja</span><span class="chip">Teilweise</span><span class="chip">Nein</span></div>
+              </div>
+              <div>
+                <label class="label required">Vergabeprozess</label>
+                <div class="chips" data-field="vergabeprozess"><span class="chip">Direkte Beauftragung möglich</span><span class="chip">Mehrere Angebote geplant</span><span class="chip">Formale Ausschreibung</span></div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div>
+                <label class="label required">Worauf legen Sie Wert?</label>
+                <div class="chips" data-field="wert"><span class="chip">Preis</span><span class="chip">Qualität</span><span class="chip">Geschwindigkeit</span><span class="chip">Erfahrung</span></div>
+                <span class="hint">Mehrfachauswahl vorgesehen.</span>
+              </div>
+              <div>
+                <label class="label optional" for="modalHinweis">Weitere Hinweise</label>
+                <textarea id="modalHinweis" placeholder="Spezielle Anforderungen, Compliance-Vorgaben, Fristen, Rahmenverträge, Voranbieter, Sprachen ..." style="min-height: 120px;"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card section">
+          <div class="section-head">
+            <div class="section-kicker">Schritt 5</div>
+            <h3>Scope und Systemlandschaft</h3>
+            <div class="section-sub">Optional: Ergänzen Sie Ihre Unternehmens-Eckdaten, oder übernehmen Sie diese aus Ihrem Profil.</div>
+          </div>
+          <div class="section-body">
+            <div style="margin-bottom:18px;">
+              <label class="label optional" for="modalSysteme">Welche IT-Systeme haben Sie im Einsatz?</label>
+              <textarea id="modalSysteme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
+            </div>
+            <div style="margin-bottom:22px;">
+              <button type="button" id="modalLoadProfileDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
+            </div>
+            <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
+              <div class="mini-stat"><strong class="optional">Anzahl der IT-Systeme</strong><input id="modalAnzahlSysteme" type="text" placeholder="z. B. 45" /></div>
+              <div class="mini-stat"><strong class="optional">Anzahl der Nutzer</strong><input id="modalAnzahlNutzer" type="text" placeholder="z. B. 320" /></div>
+              <div class="mini-stat"><strong class="optional">Anzahl der Standorte</strong><input id="modalAnzahlStandorte" type="text" placeholder="z. B. 5" /></div>
+              <div class="mini-stat"><strong class="optional">Branche</strong><input id="modalBranche" type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="form-modal-footer">
+        <button type="button" id="formModalCancelBtn" class="btn btn-ghost">Abbrechen</button>
+        <button type="button" id="formModalPublishBtn" class="btn btn-primary">Angebotsaufforderung versenden <i class="material-icons" style="font-size:18px;vertical-align:middle;margin-left:6px;">mail</i></button>
       </div>
     </div>
   </div>
@@ -373,8 +518,9 @@
                     <button class="btn btn-secondary" id="selectVisibleBtn">Alle gefilterten auswählen</button>
                     <button class="btn btn-ghost" id="clearSelectionBtn">Auswahl leeren</button>
                   </div>
-                  <div class="selection-actions hidden">
+                  <div class="selection-actions hidden" style="gap:10px;">
                     <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen <span aria-hidden="true" style="margin-left:8px">↗</span></button>
+                    <button class="btn btn-primary" id="showFormModalBtn" style="background:#547087;">2</button>
                   </div>
                 </div>
               </div>
@@ -414,7 +560,7 @@
     <main class="container main-wrap">
       <section class="info-strip">
         <h2>Mehr passende Anbieter, weniger Streuverlust</h2>
-        <p>Die Seite bündelt Bedarfserfassung, Qualifizierung, Matching und Angebotsprozess an einem Ort. Anwender mit Account geben ihre Anfrage auf dem Marktplatz ein, Anbieter werden passend zu Themenfeldern und Lösungen zugeordnet und können direkt reagieren.</p>
+        <p>Die Seite bündelt Bedarfserfassung, Qualifizierung, Matching und Angebotsprozess an einem Ort. Anwender mit Account wählen sich auf dem Anbieterverzeichnis passende Anbieter aus und können hier Angaben zu ihren Kontaktinformationen und dem zu stellenden Bedarf eingeben.</p>
       </section>
 
       <div class="layout">
@@ -546,13 +692,12 @@
             <div class="section-head">
               <div class="section-kicker">Schritt 6</div>
               <h3>Veröffentlichung und Matching</h3>
-              <div class="section-sub">Ihre Anfrage wird nun veröffentlicht und automatisch passenden IT-Sicherheitsanbietern zugeteilt.</div>
+              <div class="section-sub">Ihre Anfrage wird bei Klick auf den Button and die ausgewählten IT-Sicherheitsanbietern weitergeleitet.</div>
             </div>
             <div class="section-body">
               <div class="timeline" style="margin-bottom:24px;">
-                <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Automatisches Matching</strong><p>Basierend auf Ihren Angaben werden relevante Anbieter ausgewählt.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Benachrichtigung der Anbieter</strong><p>Die ausgewählten Anbieter erhalten Ihre Anfrage per E-Mail und Plattform.</p></div></div>
-                <div class="timeline-item"><div class="timeline-badge">3</div><div><strong>Angebote erhalten</strong><p>Anbieter können direkt Angebote erstellen und Ihnen zusenden.</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">1</div><div><strong>Benachrichtigung der Anbieter</strong><p>Die ausgewählten Anbieter erhalten Ihre Anfrage per E-Mail und Plattform.</p></div></div>
+                <div class="timeline-item"><div class="timeline-badge">2</div><div><strong>Angebote erhalten</strong><p>Anbieter können direkt Angebote erstellen und Ihnen zusenden.</p></div></div>
               </div>
               <div class="actions">
                 <a href="#" id="publishOfferBtn" class="btn btn-primary">Angebotsaufforderung versenden <i class="material-icons" style="font-size:18px;vertical-align:middle;">mail</i></a>
@@ -1099,6 +1244,269 @@
       showPage('offer');
       location.hash = 'offer';
     });
+
+    const formModal = document.getElementById('formModal');
+    const formModalClose = document.getElementById('formModalClose');
+    const formModalCancelBtn = document.getElementById('formModalCancelBtn');
+    const formModalPublishBtn = document.getElementById('formModalPublishBtn');
+    const showFormModalBtn = document.getElementById('showFormModalBtn');
+
+    function openFormModal(){
+      formModal.classList.remove('hidden');
+      syncFormDataToModal();
+      setupChipsInModal();
+    }
+
+    function closeFormModal(){
+      formModal.classList.add('hidden');
+    }
+
+    function syncFormDataToModal(){
+      const selected = providers.filter(provider => selectedIds.includes(provider.id));
+      const {focus, industry} = getSelectedDirectoryFilters();
+      const selectedTopics = [...new Set(selected.flatMap(provider => [...(provider.focus||[]), ...(provider.tags||[])]))];
+      
+      const modalSelectedProvidersContainer = document.getElementById('modalSelectedProvidersContainer');
+      if(selected.length === 0){
+        modalSelectedProvidersContainer.innerHTML = `<div class="inline-empty">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.</div>`;
+      } else {
+        modalSelectedProvidersContainer.innerHTML = `<div class="selected-provider-list">
+          ${selected.map(provider => `
+            <div class="selected-pill">
+              <span>${provider.name}</span>
+              <button type="button" data-remove="${provider.id}" aria-label="${provider.name} entfernen">×</button>
+            </div>
+          `).join('')}
+        </div>`;
+        modalSelectedProvidersContainer.querySelectorAll('button[data-remove]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selectedIds = selectedIds.filter(id => id !== btn.dataset.remove);
+            syncFormDataToModal();
+          });
+        });
+      }
+      
+      const filterChips = [...focus, ...industry].map(makeChip).join('');
+      const topicChips = selectedTopics.map(makeChip).join('');
+      document.getElementById('modalSelectedFiltersContainer').innerHTML = filterChips ? `<div class="meta-group"><strong>Übernommene Filter</strong><div class="chips">${filterChips}</div></div>` : '';
+      document.getElementById('modalSelectedTopicsContainer').innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder der Anbieter</strong><div class="chips">${topicChips}</div></div>` : '';
+      
+      document.getElementById('modalThemenfeld').value = selectedTopics.join(', ');
+    }
+
+    function setupChipsInModal(){
+      document.querySelectorAll('#formModal .chips[data-field]').forEach(chipsContainer => {
+        chipsContainer.querySelectorAll('.chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            const hint = chipsContainer.nextElementSibling;
+            const singleChoice = hint && hint.textContent.includes('Nur eine Auswahl');
+
+            if(singleChoice){
+              chipsContainer.querySelectorAll('.chip').forEach(item => item.classList.remove('active'));
+              chip.classList.add('active');
+            } else {
+              chip.classList.toggle('active');
+            }
+          });
+        });
+      });
+      
+      document.querySelectorAll('#formModal textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+        autoResizeTextarea(textarea);
+      });
+    }
+
+    showFormModalBtn.addEventListener('click', () => {
+      if(!isLoggedIn){
+        showLoginPrompt();
+        return;
+      }
+      openFormModal();
+    });
+
+    formModalClose.addEventListener('click', () => {
+      closeFormModal();
+    });
+
+    formModalCancelBtn.addEventListener('click', () => {
+      closeFormModal();
+    });
+
+    document.getElementById('modalLoadContactDataBtn').addEventListener('click', () => {
+      const mockContactData = {
+        contactName: 'Max Mustermann',
+        contactEmail: 'max.mustermann@example.com',
+        contactPhone: '+49 30 12345678',
+        contactCompany: 'Beispiel GmbH'
+      };
+      document.getElementById('modalContactName').value = mockContactData.contactName;
+      document.getElementById('modalContactEmail').value = mockContactData.contactEmail;
+      document.getElementById('modalContactPhone').value = mockContactData.contactPhone;
+      document.getElementById('modalContactCompany').value = mockContactData.contactCompany;
+    });
+
+    document.getElementById('modalLoadProfileDataBtn').addEventListener('click', () => {
+      const mockProfileData = {
+        anzahlSysteme: '45',
+        anzahlNutzer: '320',
+        anzahlStandorte: '5',
+        branche: 'IT und Telekommunikation'
+      };
+      document.getElementById('modalAnzahlSysteme').value = mockProfileData.anzahlSysteme;
+      document.getElementById('modalAnzahlNutzer').value = mockProfileData.anzahlNutzer;
+      document.getElementById('modalAnzahlStandorte').value = mockProfileData.anzahlStandorte;
+      document.getElementById('modalBranche').value = mockProfileData.branche;
+    });
+
+    function getActiveChipsInModal(labelText){
+      const chipsContainers = document.querySelectorAll('#formModal .chips[data-field]');
+      let result = 'Nicht angegeben';
+      chipsContainers.forEach(container => {
+        const label = container.parentElement?.querySelector('.label');
+        if(label && label.textContent.includes(labelText)){
+          const active = container.querySelector('.chip.active');
+          if(active) result = active.textContent.trim();
+        }
+      });
+      return result;
+    }
+
+    function getFieldGroupElementInModal(labelText){
+      const labels = document.querySelectorAll('#formModal .label');
+      for(let label of labels){
+        if(label.textContent.includes(labelText)){
+          const container = label.parentElement?.querySelector('.chips');
+          return container || label.parentElement;
+        }
+      }
+      return null;
+    }
+
+    function validateModalFormSubmission(){
+      const invalidFields = [];
+      const bedarf = document.getElementById('modalBedarf');
+      const themenfeld = document.getElementById('modalThemenfeld');
+      const budget = getActiveChipsInModal('Budget');
+      const projektstart = getActiveChipsInModal('Projektstart');
+      const entscheider = getActiveChipsInModal('Sind Sie Entscheider?');
+      const vergabeprozess = getActiveChipsInModal('Vergabeprozess');
+
+      if(!bedarf?.value.trim()) invalidFields.push({name:'bedarf', element:bedarf});
+      if(!themenfeld?.value.trim()) invalidFields.push({name:'themenfeld', element:themenfeld});
+      if(!budget || budget === 'Nicht angegeben') invalidFields.push({name:'budget', element:getFieldGroupElementInModal('Budget')});
+      if(!projektstart || projektstart === 'Nicht angegeben') invalidFields.push({name:'projektstart', element:getFieldGroupElementInModal('Projektstart')});
+      if(!entscheider || entscheider === 'Nicht angegeben') invalidFields.push({name:'entscheider', element:getFieldGroupElementInModal('Sind Sie Entscheider?')});
+      if(!vergabeprozess || vergabeprozess === 'Nicht angegeben') invalidFields.push({name:'vergabeprozess', element:getFieldGroupElementInModal('Vergabeprozess')});
+
+      return {isValid: selectedIds.length > 0 && invalidFields.length === 0, invalidFields};
+    }
+
+    formModalPublishBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const validation = validateModalFormSubmission();
+      
+      if(!validation.isValid){
+        validation.invalidFields.forEach(field => markFieldError(field.element));
+        const topField = validation.invalidFields[0]?.element;
+        if(topField){
+          topField.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+        return;
+      }
+
+      const confirmed = window.confirm('Sind Sie sicher, dass Ihre Angaben korrekt sind? Dieser Vorgang kann nicht zurückgezogen werden.');
+      if(!confirmed) return;
+
+      await generateModalPDF();
+      closeFormModal();
+      showSuccessPage();
+    });
+
+    async function generateModalPDF(){
+      const jsPDFModule = window.jspdf || window.jsPDF;
+      const jsPDFClass = jsPDFModule?.jsPDF || jsPDFModule;
+      if(!jsPDFClass){
+        console.error('jsPDF library not available');
+        return;
+      }
+      try {
+        const contactName = document.getElementById('modalContactName')?.value || '';
+        const contactEmail = document.getElementById('modalContactEmail')?.value || '';
+        const contactPhone = document.getElementById('modalContactPhone')?.value || '';
+        const contactCompany = document.getElementById('modalContactCompany')?.value || '';
+        const bedarfText = document.getElementById('modalBedarf')?.value || 'Nicht angegeben';
+
+        const details = [
+          ['Anzahl IT-Systeme', document.getElementById('modalAnzahlSysteme')?.value],
+          ['Anzahl Nutzer', document.getElementById('modalAnzahlNutzer')?.value],
+          ['Anzahl Standorte', document.getElementById('modalAnzahlStandorte')?.value],
+          ['Branche', document.getElementById('modalBranche')?.value],
+          ['Budget', getActiveChipsInModal('Budget')],
+          ['Projektstart', getActiveChipsInModal('Projektstart')],
+          ['Entscheider', getActiveChipsInModal('Sind Sie Entscheider?')],
+          ['Vergabeprozess', getActiveChipsInModal('Vergabeprozess')],
+          ['Worauf Wert gelegt', getActiveChipsInModal('Worauf legen Sie Wert?')],
+          ['Weitere Hinweise', document.getElementById('modalHinweis')?.value]
+        ];
+
+        function sanitizeFilename(str){
+          return (str || 'Anbieter').replace(/[^a-z0-9 _-]/gi,'').trim().replace(/\s+/g,'_');
+        }
+
+        const files = [];
+        selectedIds.forEach(id => {
+          const provider = providers.find(p => p.id === id);
+          if(!provider) return;
+          const pdf = new jsPDFClass();
+          pdf.setFont('Helvetica');
+          pdf.setFontSize(16);
+          pdf.text('Anforderung für ' + provider.name, 20, 20);
+          pdf.setFontSize(10);
+          let y = 40;
+          pdf.text('Ansprechpartner: ' + contactName, 20, y); y += 8;
+          pdf.text('E-Mail: ' + contactEmail, 20, y); y += 8;
+          pdf.text('Telefon: ' + contactPhone, 20, y); y += 8;
+          pdf.text('Unternehmen: ' + contactCompany, 20, y); y += 15;
+          pdf.setFont('Helvetica', 'bold');
+          pdf.text('Bedarf:', 20, y); y += 8;
+          pdf.setFont('Helvetica');
+          const bedarfLines = pdf.splitTextToSize(bedarfText, 170);
+          pdf.text(bedarfLines, 20, y); y += bedarfLines.length * 6 + 10;
+          pdf.setFont('Helvetica', 'bold');
+          pdf.text('Rahmenbedingungen:', 20, y); y += 8;
+          pdf.setFont('Helvetica');
+          details.forEach(([key, value]) => {
+            const lines = pdf.splitTextToSize(`${key}: ${value}`, 170);
+            pdf.text(lines, 20, y);
+            y += lines.length * 6;
+          });
+          const filename = `Anfrage_${provider.name.replace(/\s+/g,'_')}_${new Date().getTime()}.pdf`;
+          files.push({name: filename, blob: pdf.output('blob')});
+        });
+
+        if(files.length === 1){
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(files[0].blob);
+          link.download = files[0].name;
+          link.click();
+        } else if(files.length > 1){
+          const JSZip = window.JSZip;
+          if(JSZip){
+            const zip = new JSZip();
+            files.forEach(file => { zip.file(file.name, file.blob); });
+            zip.generateAsync({type:'blob'}).then(blob => {
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `Angebotanfragen_${new Date().getTime()}.zip`;
+              link.click();
+            });
+          }
+        }
+      } catch(error){
+        console.error('Error generating PDF:', error);
+      }
+    }
 
     document.getElementById('loadContactDataBtn').addEventListener('click', () => {
       const mockContactData = {
