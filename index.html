@@ -255,6 +255,27 @@
     .form-modal h2{margin:0;font-size:24px;color:#202a33;font-weight:700}
     .form-modal-body{flex:1;overflow-y:auto;padding:24px 28px}
     .form-modal-footer{padding:24px 28px;border-top:1px solid #ecf0f3;display:flex;gap:10px;justify-content:flex-end}
+    .wizard-modal-body{overflow-y:auto;max-height:calc(90vh - 170px);padding:24px 28px}
+    #formModal textarea, #wizardModal textarea{max-height:240px;overflow-y:auto}
+    .wizard-step{display:none}
+    .wizard-review-step .review-panel{background:#fff;border:1px solid #dce3ea;border-radius:14px;padding:24px;box-shadow:0 10px 22px rgba(27,43,61,.06)}
+    .wizard-review-step .review-header{padding-bottom:18px;border-bottom:1px solid #eef2f6;margin-bottom:20px}
+    .wizard-review-step .review-header .section-kicker{display:block;color:var(--red);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+    .wizard-review-step .review-header h3{margin:0 0 8px;font-size:26px;color:#1f2b38}
+    .wizard-review-step .review-header .section-sub{margin:0;color:#55646e;font-size:15px;line-height:1.6}
+    .wizard-review-step .review-body{display:grid;gap:18px}
+    .wizard-review-step .review-row{display:grid;gap:10px}
+    .wizard-review-step .review-row strong{display:block;margin:0;color:#2f3f4f;font-size:15px}
+    .wizard-review-step .review-row p{margin:0;color:#4f5c6b;line-height:1.7}
+    .wizard-review-step .review-contact{color:#4f5c6b;white-space:pre-line;font-size:15px;line-height:1.7}
+    .wizard-review-step .review-body .chips{margin-top:8px}
+    .wizard-step.active{display:block}
+    .wizard-progress{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+    .wizard-progress .progress-step{padding:12px 14px;border-radius:10px;background:#f4f6f8;color:#5a6670;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;cursor:not-allowed}
+    .wizard-progress .progress-step.completed{background:#e6f0fb;color:#315b85;cursor:pointer}
+    .wizard-progress .progress-step span:first-child{width:32px;height:32px;border-radius:50%;background:#dfe5eb;color:#4b6c82;display:grid;place-items:center;font-weight:800}
+    .wizard-progress .progress-step.active{background:var(--red);color:#fff;cursor:default}
+    .wizard-progress .progress-step.active span:first-child{background:#fff;color:var(--red)}
   </style>
 </head>
 <body>
@@ -429,6 +450,201 @@
     </div>
   </div>
 
+  <div id="wizardModal" class="form-modal hidden" role="dialog" aria-modal="true" aria-labelledby="wizardModalTitle">
+    <div class="form-modal-card">
+      <div class="form-modal-header">
+        <h2 id="wizardModalTitle">Angebotsaufforderung erstellen</h2>
+        <button type="button" id="wizardModalClose" class="form-modal-close" aria-label="Dialog schließen">×</button>
+      </div>
+      <div class="form-modal-body wizard-modal-body">
+        <div class="wizard-progress" id="wizardProgress">
+          <div class="progress-step active" data-step="1"><span>1</span><span>Auswahl prüfen</span></div>
+          <div class="progress-step" data-step="2"><span>2</span><span>Bedarf beschreiben</span></div>
+          <div class="progress-step" data-step="3"><span>3</span><span>Kontaktdaten</span></div>
+          <div class="progress-step" data-step="4"><span>4</span><span>Rahmenbedingungen</span></div>
+          <div class="progress-step" data-step="5"><span>5</span><span>Scope & Systemlandschaft</span></div>
+        </div>
+
+        <section class="wizard-step active" data-step="1">
+          <div class="card section">
+            <div class="section-head">
+              <div class="section-kicker">SCHRITT 1</div>
+              <h3>Ihre Vorauswahl aus dem Anbieterverzeichnis</h3>
+              <div class="section-sub">Die ausgewählten Unternehmen sind hier gesammelt. Prüfen Sie die Auswahl, bevor Sie fortfahren.</div>
+            </div>
+            <div class="section-body">
+              <div id="wizardSelectedProvidersContainer" class="selected-providers"></div>
+              <div id="wizardSelectedFiltersContainer" class="chips"></div>
+              <div id="wizardSelectedTopicsContainer" class="chips"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="2">
+          <div class="card section">
+            <div class="section-head">
+              <div class="section-kicker">SCHRITT 2</div>
+              <h3>Bedarf beschreiben</h3>
+              <div class="section-sub">Erfassen Sie, was Sie angeboten bekommen möchten und worum es fachlich geht.</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:18px;">
+                <label class="label required" for="wizardModalBedarf">Beschreiben Sie klar, was Sie angeboten bekommen möchten</label>
+                <textarea id="wizardModalBedarf" style="min-height:140px;" placeholder="z. B. Wir suchen Unterstützung bei der Einführung eines SIEMs inklusive Beratung, Implementierung und Schulung."></textarea>
+              </div>
+              <textarea id="wizardModalThemenfeld" style="display:none"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="3">
+          <div class="card section">
+            <div class="section-head">
+              <div class="section-kicker">SCHRITT 3</div>
+              <h3>Kontaktdaten</h3>
+              <div class="section-sub">Geben Sie hier an, wer beim Anbieter als Ansprechpartner:in für Rückfragen dient.</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:22px;">
+                <button type="button" id="wizardModalLoadContactDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
+              </div>
+              <div style="margin-bottom:18px;">
+                <label class="label" for="wizardModalContactName">Ansprechpartner /in</label>
+                <input type="text" id="wizardModalContactName" placeholder="Vor- und Nachname (für Anbieter)" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+                <div>
+                  <label class="label" for="wizardModalContactEmail">E-Mail für Rückfragen</label>
+                  <input type="text" id="wizardModalContactEmail" placeholder="name@beispiel.de" />
+                </div>
+                <div>
+                  <label class="label optional" for="wizardModalContactPhone">Telefon</label>
+                  <input type="text" id="wizardModalContactPhone" placeholder="z. B. +49 30 1234567" />
+                </div>
+              </div>
+              <div style="margin-bottom:18px;">
+                <label class="label optional" for="wizardModalContactCompany">Ihr Unternehmen</label>
+                <input type="text" id="wizardModalContactCompany" placeholder="Firma / Organisation" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="4">
+          <div class="card section">
+            <div class="section-head">
+              <div class="section-kicker">SCHRITT 4</div>
+              <h3>Rahmenbedingungen</h3>
+              <div class="section-sub">Budget, Projektstart, Entscheiderstatus und Vergabeprozess helfen bei der Priorisierung Ihrer Anfrage.</div>
+            </div>
+            <div class="section-body">
+              <div class="grid-2" style="margin-bottom:18px;">
+                <div>
+                  <label class="label required">Budget</label>
+                  <div class="chips" data-field="budget"><span class="chip">&lt; 10k</span><span class="chip">10–50k</span><span class="chip">50–100k</span><span class="chip">100k+</span></div>
+                  <span class="hint">Nur eine Auswahl vorgesehen.</span>
+                </div>
+                <div>
+                  <label class="label required">Projektstart</label>
+                  <div class="chips" data-field="projektstart"><span class="chip">Sofort</span><span class="chip">&lt; 1 Monat</span><span class="chip">1–3 Monate</span><span class="chip">4 Monate+</span></div>
+                  <span class="hint">Nur eine Auswahl vorgesehen.</span>
+                </div>
+                <div>
+                  <label class="label required">Sind Sie Entscheider?</label>
+                  <div class="chips" data-field="entscheider"><span class="chip">Ja</span><span class="chip">Teilweise</span><span class="chip">Nein</span></div>
+                </div>
+                <div>
+                  <label class="label required">Vergabeprozess</label>
+                  <div class="chips" data-field="vergabeprozess"><span class="chip">Direkte Beauftragung möglich</span><span class="chip">Mehrere Angebote geplant</span><span class="chip">Formale Ausschreibung</span></div>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="label required">Worauf legen Sie Wert?</label>
+                  <div class="chips" data-field="wert"><span class="chip">Preis</span><span class="chip">Qualität</span><span class="chip">Geschwindigkeit</span><span class="chip">Erfahrung</span></div>
+                  <span class="hint">Mehrfachauswahl vorgesehen.</span>
+                </div>
+                <div>
+                  <label class="label optional" for="wizardModalHinweis">Weitere Hinweise</label>
+                  <textarea id="wizardModalHinweis" placeholder="Spezielle Anforderungen, Compliance-Vorgaben, Fristen, Rahmenverträge, Voranbieter, Sprachen ..." style="min-height: 120px;"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="5">
+          <div class="card section">
+            <div class="section-head">
+              <div class="section-kicker">SCHRITT 5</div>
+              <h3>Scope und Systemlandschaft</h3>
+              <div class="section-sub">Optional: Ergänzen Sie Ihre Eckdaten oder übernehmen Sie sie aus Ihrem Profil.</div>
+            </div>
+            <div class="section-body">
+              <div style="margin-bottom:18px;">
+                <label class="label optional" for="wizardModalSysteme">Welche IT-Systeme haben Sie im Einsatz?</label>
+                <textarea id="wizardModalSysteme" placeholder="z. B. Microsoft 365, Active Directory, VMware, Firewall-Cluster, Azure, Linux-Server, Clients, Produktionsnetz"></textarea>
+              </div>
+              <div style="margin-bottom:22px;">
+                <button type="button" id="wizardModalLoadProfileDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
+              </div>
+              <div class="grid-4" style="margin-bottom:18px; grid-template-columns: 1fr 1fr 1fr 2fr;">
+                <div class="mini-stat"><strong class="optional">Anzahl der IT-Systeme</strong><input id="wizardModalAnzahlSysteme" type="text" placeholder="z. B. 45" /></div>
+                <div class="mini-stat"><strong class="optional">Anzahl der Nutzer</strong><input id="wizardModalAnzahlNutzer" type="text" placeholder="z. B. 320" /></div>
+                <div class="mini-stat"><strong class="optional">Anzahl der Standorte</strong><input id="wizardModalAnzahlStandorte" type="text" placeholder="z. B. 5" /></div>
+                <div class="mini-stat"><strong class="optional">Branche</strong><input id="wizardModalBranche" type="text" placeholder="Wird idealerweise aus Profil übernommen" /></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step wizard-review-step" data-step="6">
+          <div class="review-panel">
+            <div class="review-header">
+              <div class="section-kicker">Zusammenfassung</div>
+              <h3>Vor dem Versand</h3>
+              <div class="section-sub">Prüfen Sie kurz, an wen die Angebotsaufforderung gesendet wird, bevor Sie sie abschicken.</div>
+            </div>
+            <div class="review-body">
+              <div class="review-row">
+                <strong>Empfänger</strong>
+                <div id="wizardReviewRecipients" class="chips"></div>
+              </div>
+              <div class="review-row">
+                <strong>Rückfragekontakt</strong>
+                <div id="wizardReviewContact" class="review-contact"></div>
+              </div>
+              <div class="review-row">
+                <strong>Wie es jetzt weitergeht</strong>
+                <p>Mit Klick auf „Angebotsaufforderung versenden“ wird die Anfrage an die ausgewählten Anbieter verschickt.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="wizardSuccessScreen" class="card section hidden">
+          <div class="section-head">
+            <div class="section-kicker">Erfolgreich gesendet</div>
+            <h3>Ihre Angebotsaufforderung wurde abgeschickt</h3>
+            <div class="section-sub">Der Bestätigungsscreen bleibt im Modal sichtbar. Sie können den Dialog jetzt schließen.</div>
+          </div>
+          <div class="section-body">
+            <p style="margin-bottom:22px;color:#4f5c6b;">Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt. Die ausgewählten Anbieter erhalten nun eine Benachrichtigung.</p>
+            <button type="button" id="wizardSuccessCloseBtn" class="btn btn-primary">Schließen</button>
+          </div>
+        </section>
+      </div>
+      <div class="form-modal-footer" style="justify-content:space-between;">
+        <button type="button" id="wizardModalCancelBtn" class="btn btn-ghost">Abbrechen</button>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button type="button" id="wizardModalBackBtn" class="btn btn-secondary hidden">Zurück</button>
+          <button type="button" id="wizardModalNextBtn" class="btn btn-primary">Weiter</button>
+          <button type="button" id="wizardModalSubmitBtn" class="btn btn-primary hidden">Angebotsaufforderung versenden</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <section class="page directory-page active" id="page-directory">
     <div class="hero-wrap">
       <div class="container">
@@ -521,6 +737,7 @@
                   <div class="selection-actions hidden" style="gap:10px;">
                     <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen <span aria-hidden="true" style="margin-left:8px">↗</span></button>
                     <button class="btn btn-primary" id="showFormModalBtn" style="background:#547087;">2</button>
+                    <button class="btn btn-primary" id="showWizardModalBtn" style="background:#406d88;">3</button>
                   </div>
                 </div>
               </div>
@@ -1101,7 +1318,9 @@
 
     function autoResizeTextarea(textarea){
       textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+      const maxHeight = 240;
+      const height = Math.min(textarea.scrollHeight, maxHeight);
+      textarea.style.height = height + 'px';
     }
 
     function setupTextareaAutoResize(){
@@ -1261,6 +1480,218 @@
       formModal.classList.add('hidden');
     }
 
+    const wizardModal = document.getElementById('wizardModal');
+    const wizardModalClose = document.getElementById('wizardModalClose');
+    const wizardModalCancelBtn = document.getElementById('wizardModalCancelBtn');
+    const wizardModalBackBtn = document.getElementById('wizardModalBackBtn');
+    const wizardModalNextBtn = document.getElementById('wizardModalNextBtn');
+    const wizardModalSubmitBtn = document.getElementById('wizardModalSubmitBtn');
+    const showWizardModalBtn = document.getElementById('showWizardModalBtn');
+    let currentWizardStep = 1;
+    let wizardSuccessVisible = false;
+    let wizardVisitedSteps = new Set([1]);
+
+    function resetWizardModalUI(){
+      wizardSuccessVisible = false;
+      wizardVisitedSteps = new Set([1]);
+      document.getElementById('wizardSuccessScreen').classList.add('hidden');
+      document.getElementById('wizardProgress').classList.remove('hidden');
+      document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
+    }
+
+    function openWizardModal(){
+      wizardModal.classList.remove('hidden');
+      currentWizardStep = 1;
+      resetWizardModalUI();
+      updateWizardStepUI();
+      syncWizardModalData();
+    }
+
+    function closeWizardModal(){
+      wizardModal.classList.add('hidden');
+    }
+
+    function updateWizardStepUI(){
+      document.querySelectorAll('#wizardModal .wizard-step').forEach(step => {
+        const stepNumber = Number(step.dataset.step);
+        step.classList.toggle('active', stepNumber === currentWizardStep);
+        step.classList.toggle('hidden', stepNumber !== currentWizardStep);
+      });
+      document.querySelectorAll('#wizardModal .wizard-progress .progress-step').forEach(progress => {
+        const stepNumber = Number(progress.dataset.step);
+        progress.classList.toggle('active', stepNumber === currentWizardStep);
+        progress.classList.toggle('completed', wizardVisitedSteps.has(stepNumber) && stepNumber !== currentWizardStep);
+        progress.classList.toggle('visited', wizardVisitedSteps.has(stepNumber));
+      });
+      wizardModalBackBtn.classList.toggle('hidden', currentWizardStep === 1);
+      wizardModalNextBtn.classList.toggle('hidden', currentWizardStep === 6);
+      wizardModalSubmitBtn.classList.toggle('hidden', currentWizardStep !== 6);
+      if(currentWizardStep === 6){
+        updateWizardReviewScreen();
+      }
+      if(wizardSuccessVisible){
+        document.getElementById('wizardProgress').classList.add('hidden');
+        document.getElementById('wizardSuccessScreen').classList.remove('hidden');
+        document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
+        wizardModalBackBtn.classList.add('hidden');
+        wizardModalNextBtn.classList.add('hidden');
+        wizardModalSubmitBtn.classList.add('hidden');
+      }
+    }
+
+    function showWizardSuccessScreen(){
+      wizardSuccessVisible = true;
+      document.getElementById('wizardProgress').classList.add('hidden');
+      document.getElementById('wizardSuccessScreen').classList.remove('hidden');
+      document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
+      wizardModalBackBtn.classList.add('hidden');
+      wizardModalNextBtn.classList.add('hidden');
+      wizardModalSubmitBtn.classList.add('hidden');
+    }
+
+    function syncWizardModalData(){
+      const selected = providers.filter(provider => selectedIds.includes(provider.id));
+      const {focus, industry} = getSelectedDirectoryFilters();
+      const selectedTopics = [...new Set(selected.flatMap(provider => [...(provider.focus||[]), ...(provider.tags||[])]))];
+      const selectedProvidersContainer = document.getElementById('wizardSelectedProvidersContainer');
+      if(selected.length === 0){
+        selectedProvidersContainer.innerHTML = `<div class="inline-empty">Aktuell wurden noch keine Anbieter aus dem Verzeichnis übernommen.</div>`;
+      } else {
+        selectedProvidersContainer.innerHTML = `<div class="selected-provider-list">
+          ${selected.map(provider => `
+            <div class="selected-pill">
+              <span>${provider.name}</span>
+              <button type="button" data-remove="${provider.id}" aria-label="${provider.name} entfernen">×</button>
+            </div>
+          `).join('')}
+        </div>`;
+        selectedProvidersContainer.querySelectorAll('button[data-remove]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selectedIds = selectedIds.filter(id => id !== btn.dataset.remove);
+            syncWizardModalData();
+            renderProviders();
+          });
+        });
+      }
+      const filterChips = [...focus, ...industry].map(makeChip).join('');
+      const topicChips = selectedTopics.map(makeChip).join('');
+      document.getElementById('wizardSelectedFiltersContainer').innerHTML = filterChips ? `<div class="meta-group"><strong>Übernommene Filter</strong><div class="chips">${filterChips}</div></div>` : '';
+      document.getElementById('wizardSelectedTopicsContainer').innerHTML = topicChips ? `<div class="meta-group"><strong>Übernommene Themenfelder der Anbieter</strong><div class="chips">${topicChips}</div></div>` : '';
+      document.getElementById('wizardModalThemenfeld').value = selectedTopics.join(', ');
+    }
+
+    function validateWizardStep(){
+      const invalidFields = [];
+      if(currentWizardStep === 1){
+        if(selectedIds.length === 0){
+          invalidFields.push({name:'selection', element: document.getElementById('wizardSelectedProvidersContainer')});
+        }
+      }
+      if(currentWizardStep === 2){
+        const bedarfField = document.getElementById('wizardModalBedarf');
+        if(!bedarfField?.value.trim()) invalidFields.push({name:'bedarf', element: bedarfField});
+      }
+      if(currentWizardStep === 3){
+        const contactNameField = document.getElementById('wizardModalContactName');
+        const contactEmailField = document.getElementById('wizardModalContactEmail');
+        if(!contactNameField?.value.trim()) invalidFields.push({name:'contactName', element: contactNameField});
+        if(!contactEmailField?.value.trim()) invalidFields.push({name:'contactEmail', element: contactEmailField});
+      }
+      if(currentWizardStep === 4){
+        const budget = getActiveChipsInModal('Budget');
+        const projektstart = getActiveChipsInModal('Projektstart');
+        const entscheider = getActiveChipsInModal('Sind Sie Entscheider?');
+        const vergabeprozess = getActiveChipsInModal('Vergabeprozess');
+        if(!budget || budget === 'Nicht angegeben') invalidFields.push({name:'budget', element: getFieldGroupElementInModal('Budget')});
+        if(!projektstart || projektstart === 'Nicht angegeben') invalidFields.push({name:'projektstart', element: getFieldGroupElementInModal('Projektstart')});
+        if(!entscheider || entscheider === 'Nicht angegeben') invalidFields.push({name:'entscheider', element: getFieldGroupElementInModal('Sind Sie Entscheider?')});
+        if(!vergabeprozess || vergabeprozess === 'Nicht angegeben') invalidFields.push({name:'vergabeprozess', element: getFieldGroupElementInModal('Vergabeprozess')});
+      }
+      return invalidFields;
+    }
+
+    function clearWizardErrors(){
+      document.querySelectorAll('#wizardModal .field-error').forEach(el => el.classList.remove('field-error'));
+    }
+
+    function updateWizardReviewScreen(){
+      const selected = providers.filter(provider => selectedIds.includes(provider.id));
+      const recipientsContainer = document.getElementById('wizardReviewRecipients');
+      if(selected.length === 0){
+        recipientsContainer.innerHTML = `<div class="inline-empty">Aktuell wurden noch keine Anbieter ausgewählt.</div>`;
+      } else {
+        recipientsContainer.innerHTML = selected.map(provider => `<span class="chip">${provider.name}</span>`).join('');
+      }
+      const contactName = document.getElementById('wizardModalContactName')?.value.trim();
+      const contactEmail = document.getElementById('wizardModalContactEmail')?.value.trim();
+      const contactCompany = document.getElementById('wizardModalContactCompany')?.value.trim();
+      const reviewContact = document.getElementById('wizardReviewContact');
+      if(contactName || contactEmail || contactCompany){
+        reviewContact.innerHTML = `${contactName ? `<div>${contactName}</div>` : ''}${contactEmail ? `<div>${contactEmail}</div>` : ''}${contactCompany ? `<div>${contactCompany}</div>` : ''}`;
+      } else {
+        reviewContact.innerHTML = `<span class="inline-empty">Kein Ansprechpartner für Rückfragen angegeben.</span>`;
+      }
+    }
+
+    function markWizardFieldError(element){
+      if(!element) return;
+      element.classList.add('field-error');
+      element.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    showWizardModalBtn.addEventListener('click', () => {
+      if(!isLoggedIn){
+        showLoginPrompt();
+        return;
+      }
+      openWizardModal();
+    });
+
+    wizardModalClose.addEventListener('click', () => closeWizardModal());
+    wizardModalCancelBtn.addEventListener('click', () => closeWizardModal());
+    wizardModalBackBtn.addEventListener('click', () => {
+      if(currentWizardStep > 1){
+        currentWizardStep -= 1;
+        updateWizardStepUI();
+      }
+    });
+    wizardModalNextBtn.addEventListener('click', () => {
+      clearWizardErrors();
+      const invalid = validateWizardStep();
+      if(invalid.length){
+        invalid.forEach(field => markWizardFieldError(field.element));
+        return;
+      }
+      if(currentWizardStep < 6){
+        currentWizardStep += 1;
+        wizardVisitedSteps.add(currentWizardStep);
+        updateWizardStepUI();
+      }
+    });
+    wizardModalSubmitBtn.addEventListener('click', () => {
+      clearWizardErrors();
+      const invalid = validateWizardStep();
+      if(invalid.length){
+        invalid.forEach(field => markWizardFieldError(field.element));
+        return;
+      }
+      const confirmed = window.confirm('Sind Sie sicher, dass Ihre Angaben korrekt sind? Dieser Vorgang kann nicht zurückgezogen werden.');
+      if(!confirmed) return;
+      showWizardSuccessScreen();
+    });
+    document.querySelectorAll('#wizardModal .wizard-progress .progress-step').forEach(progress => {
+      progress.addEventListener('click', () => {
+        const targetStep = Number(progress.dataset.step);
+        if(wizardVisitedSteps.has(targetStep)){
+          currentWizardStep = targetStep;
+          updateWizardStepUI();
+        }
+      });
+    });
+    document.getElementById('wizardSuccessCloseBtn')?.addEventListener('click', () => {
+      closeWizardModal();
+    });
+
     function syncFormDataToModal(){
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
       const {focus, industry} = getSelectedDirectoryFilters();
@@ -1295,7 +1726,7 @@
     }
 
     function setupChipsInModal(){
-      document.querySelectorAll('#formModal .chips[data-field]').forEach(chipsContainer => {
+      document.querySelectorAll('#formModal .chips[data-field], #wizardModal .chips[data-field]').forEach(chipsContainer => {
         chipsContainer.querySelectorAll('.chip').forEach(chip => {
           chip.addEventListener('click', () => {
             const hint = chipsContainer.nextElementSibling;
@@ -1311,7 +1742,7 @@
         });
       });
       
-      document.querySelectorAll('#formModal textarea').forEach(textarea => {
+      document.querySelectorAll('#formModal textarea, #wizardModal textarea').forEach(textarea => {
         textarea.addEventListener('input', () => autoResizeTextarea(textarea));
         autoResizeTextarea(textarea);
       });
@@ -1346,6 +1777,32 @@
       document.getElementById('modalContactCompany').value = mockContactData.contactCompany;
     });
 
+    document.getElementById('wizardModalLoadContactDataBtn').addEventListener('click', () => {
+      const mockContactData = {
+        contactName: 'Max Mustermann',
+        contactEmail: 'max.mustermann@example.com',
+        contactPhone: '+49 30 12345678',
+        contactCompany: 'Beispiel GmbH'
+      };
+      document.getElementById('wizardModalContactName').value = mockContactData.contactName;
+      document.getElementById('wizardModalContactEmail').value = mockContactData.contactEmail;
+      document.getElementById('wizardModalContactPhone').value = mockContactData.contactPhone;
+      document.getElementById('wizardModalContactCompany').value = mockContactData.contactCompany;
+    });
+
+    document.getElementById('wizardModalLoadProfileDataBtn').addEventListener('click', () => {
+      const mockProfileData = {
+        anzahlSysteme: '45',
+        anzahlNutzer: '320',
+        anzahlStandorte: '5',
+        branche: 'IT und Telekommunikation'
+      };
+      document.getElementById('wizardModalAnzahlSysteme').value = mockProfileData.anzahlSysteme;
+      document.getElementById('wizardModalAnzahlNutzer').value = mockProfileData.anzahlNutzer;
+      document.getElementById('wizardModalAnzahlStandorte').value = mockProfileData.anzahlStandorte;
+      document.getElementById('wizardModalBranche').value = mockProfileData.branche;
+    });
+
     document.getElementById('modalLoadProfileDataBtn').addEventListener('click', () => {
       const mockProfileData = {
         anzahlSysteme: '45',
@@ -1360,7 +1817,7 @@
     });
 
     function getActiveChipsInModal(labelText){
-      const chipsContainers = document.querySelectorAll('#formModal .chips[data-field]');
+      const chipsContainers = document.querySelectorAll('#formModal .chips[data-field], #wizardModal .chips[data-field]');
       let result = 'Nicht angegeben';
       chipsContainers.forEach(container => {
         const label = container.parentElement?.querySelector('.label');
@@ -1373,7 +1830,7 @@
     }
 
     function getFieldGroupElementInModal(labelText){
-      const labels = document.querySelectorAll('#formModal .label');
+      const labels = document.querySelectorAll('#formModal .label, #wizardModal .label');
       for(let label of labels){
         if(label.textContent.includes(labelText)){
           const container = label.parentElement?.querySelector('.chips');
