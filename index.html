@@ -287,7 +287,7 @@
     .wizard-progress{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
     .wizard-progress .progress-step{padding:12px 14px;border-radius:10px;background:#f4f6f8;color:#5a6670;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;cursor:not-allowed}
     .wizard-progress .progress-step.completed{background:rgba(155,29,71,.42);color:#fff;cursor:pointer}
-    .wizard-progress .progress-step.completed span:first-child{background:#fff;color:var(--red)}
+    .wizard-progress .progress-step.completed span:first-child{background:#fff;color:rgba(155,29,71,.42)}
     .wizard-progress .progress-step span:first-child{width:32px;height:32px;border-radius:50%;background:#dfe5eb;color:#4b6c82;display:grid;place-items:center;font-weight:800}
     .wizard-progress .progress-step.active{background:var(--red);color:#fff;cursor:default}
     .wizard-progress .progress-step.active span:first-child{background:#fff;color:var(--red)}
@@ -636,18 +636,6 @@
             </div>
           </div>
         </section>
-
-        <section id="wizardSuccessScreen" class="card section hidden">
-          <div class="section-head">
-            <div class="section-kicker">Erfolgreich gesendet</div>
-            <h3>Ihre Angebotsaufforderung wurde abgeschickt</h3>
-            <div class="section-sub">Der Bestätigungsscreen bleibt im Modal sichtbar. Sie können den Dialog jetzt schließen.</div>
-          </div>
-          <div class="section-body">
-            <p style="margin-bottom:22px;color:#4f5c6b;">Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt. Die ausgewählten Anbieter erhalten nun eine Benachrichtigung.</p>
-            <button type="button" id="wizardSuccessCloseBtn" class="btn btn-primary">Schließen</button>
-          </div>
-        </section>
       </div>
       <div class="form-modal-footer" style="justify-content:space-between;align-items:flex-start;">
         <button type="button" id="wizardModalCancelBtn" class="btn btn-ghost">Abbrechen</button>
@@ -655,9 +643,22 @@
           <div style="display:flex;gap:10px;align-items:center;width:100%;">
             <button type="button" id="wizardModalBackBtn" class="btn btn-secondary hidden">Zurück</button>
             <button type="button" id="wizardModalNextBtn" class="btn btn-primary" style="flex:1;">Weiter</button>
-            <button type="button" id="wizardModalSubmitBtn" class="btn btn-primary hidden" style="flex:1;">Angebotsaufforderung versenden</button>
+            <button type="button" id="wizardModalSubmitBtn" class="btn btn-primary hidden" style="flex:1;">Angebotsaufforderung versenden <i class="material-icons" style="font-size:18px;vertical-align:middle;margin-left:6px;">mail</i></button>
           </div>
           <div id="wizardValidationError" class="wizard-validation-error">Bitte füllen Sie alle Pflichtfelder aus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="successModal" class="form-modal hidden" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+    <div class="form-modal-card">
+      <div class="form-modal-body">
+        <div style="text-align:center;padding:40px 20px;">
+          <div style="font-size:14px;color:var(--red);font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Erfolgreich gesendet</div>
+          <h3 id="successModalTitle" style="margin:0 0 12px;font-size:30px;color:#37414a;">Ihre Angebotsaufforderung wurde abgeschickt</h3>
+          <p style="margin:0 0 28px;color:#4f5c6b;font-size:17px;line-height:1.6;max-width:500px;margin-left:auto;margin-right:auto;">Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt. Die ausgewählten Anbieter erhalten nun eine Benachrichtigung.</p>
+          <button type="button" id="successModalCloseBtn" class="btn btn-primary">Schließen</button>
         </div>
       </div>
     </div>
@@ -1550,15 +1551,11 @@
     const wizardModalSubmitBtn = document.getElementById('wizardModalSubmitBtn');
     const showWizardModalBtn = document.getElementById('showWizardModalBtn');
     let currentWizardStep = 1;
-    let wizardSuccessVisible = false;
     let wizardVisitedSteps = new Set([1]);
     let _modalScrollY = 0;
 
     function resetWizardModalUI(){
-      wizardSuccessVisible = false;
       wizardVisitedSteps = new Set([1]);
-      document.getElementById('wizardSuccessScreen').classList.add('hidden');
-      document.getElementById('wizardProgress').classList.remove('hidden');
       document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
     }
 
@@ -1599,24 +1596,12 @@
       if(currentWizardStep === 6){
         updateWizardReviewScreen();
       }
-      if(wizardSuccessVisible){
-        document.getElementById('wizardProgress').classList.add('hidden');
-        document.getElementById('wizardSuccessScreen').classList.remove('hidden');
-        document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
-        wizardModalBackBtn.classList.add('hidden');
-        wizardModalNextBtn.classList.add('hidden');
-        wizardModalSubmitBtn.classList.add('hidden');
-      }
     }
 
     function showWizardSuccessScreen(){
-      wizardSuccessVisible = true;
-      document.getElementById('wizardProgress').classList.add('hidden');
-      document.getElementById('wizardSuccessScreen').classList.remove('hidden');
-      document.querySelectorAll('#wizardModal .wizard-step').forEach(step => step.classList.add('hidden'));
-      wizardModalBackBtn.classList.add('hidden');
-      wizardModalNextBtn.classList.add('hidden');
-      wizardModalSubmitBtn.classList.add('hidden');
+      closeWizardModal();
+      document.getElementById('successModal').classList.remove('hidden');
+      document.body.classList.add('modal-open');
     }
 
     function syncWizardModalData(){
@@ -1782,9 +1767,14 @@
         }
       });
     });
-    document.getElementById('wizardSuccessCloseBtn')?.addEventListener('click', () => {
-      closeWizardModal();
-    });
+
+    function closeSuccessModal(){
+      const modal = document.getElementById('successModal');
+      modal.classList.add('hidden');
+      document.body.classList.remove('modal-open');
+    }
+
+    document.getElementById('successModalCloseBtn')?.addEventListener('click', closeSuccessModal);
 
     function syncFormDataToModal(){
       const selected = providers.filter(provider => selectedIds.includes(provider.id));
