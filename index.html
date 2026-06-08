@@ -26,6 +26,8 @@
       --container:1280px;
       --radius:3px;
     }
+    /* Prevent background scroll when modal is open and preserve scroll position */
+    .modal-open{position:fixed;inset:0;overflow:hidden;width:100%}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{margin:0;font-family:'Source Sans 3',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
@@ -192,7 +194,19 @@
     input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,29,71,.09)}
     .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
     .chip{border:1px solid #cfdae3;background:#f8fafb;color:#41505c;padding:10px 14px;font-weight:600;font-size:15px;border-radius:999px;cursor:pointer;user-select:none}
+    .chip.readonly{cursor:default}
     .chip.active{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
+    #wizardModal .field-error{border-color:rgba(155,29,71,.28);background:rgba(155,29,71,.08)}
+    #wizardModal .field-error:focus{box-shadow:0 0 0 3px rgba(155,29,71,.09)}
+    #wizardModal .chips.chip-group-error{border-color:rgba(155,29,71,.28);background:rgba(155,29,71,.08);border-radius:12px;padding:10px 12px;box-shadow:inset 0 0 0 1px rgba(155,29,71,.12)}
+    #wizardModal .chips.chip-group-error .chip,
+    #wizardModal .chips.required-missing .chip{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
+    #wizardModal .chips.required-missing{border-color:rgba(155,29,71,.28);background:rgba(255,237,240,.55);border-radius:12px;padding:10px 12px;box-shadow:0 0 0 2px rgba(155,29,71,.12);}
+    #wizardModal .chips.required-missing .chip{background:rgba(155,29,71,.08);color:var(--red);border-color:rgba(155,29,71,.28)}
+    #wizardModal .chips.required-missing .chip.active{background:rgba(155,29,71,.16);}
+    #wizardModal .field-error-area{border:1px solid rgba(155,29,71,.28);background:rgba(155,29,71,.04);border-radius:12px;padding:14px;}
+    .wizard-validation-error{color:var(--red);font-size:14px;font-weight:600;margin-top:10px;text-align:center;display:none}
+    .wizard-validation-error.show{display:block}
     .meta-group{margin-bottom:10px}
     .meta-group strong{display:block;margin-bottom:8px;font-size:15px;color:#333}
     .selected-provider-list{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
@@ -272,7 +286,8 @@
     .wizard-step.active{display:block}
     .wizard-progress{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
     .wizard-progress .progress-step{padding:12px 14px;border-radius:10px;background:#f4f6f8;color:#5a6670;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;cursor:not-allowed}
-    .wizard-progress .progress-step.completed{background:#e6f0fb;color:#315b85;cursor:pointer}
+    .wizard-progress .progress-step.completed{background:rgba(155,29,71,.42);color:#fff;cursor:pointer}
+    .wizard-progress .progress-step.completed span:first-child{background:#fff;color:var(--red)}
     .wizard-progress .progress-step span:first-child{width:32px;height:32px;border-radius:50%;background:#dfe5eb;color:#4b6c82;display:grid;place-items:center;font-weight:800}
     .wizard-progress .progress-step.active{background:var(--red);color:#fff;cursor:default}
     .wizard-progress .progress-step.active span:first-child{background:#fff;color:var(--red)}
@@ -509,12 +524,12 @@
                 <button type="button" id="wizardModalLoadContactDataBtn" class="btn btn-secondary"><span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 18px;">download</span>Daten aus Profil übernehmen</button>
               </div>
               <div style="margin-bottom:18px;">
-                <label class="label" for="wizardModalContactName">Ansprechpartner /in</label>
+                <label class="label required" for="wizardModalContactName">Ansprechpartner /in</label>
                 <input type="text" id="wizardModalContactName" placeholder="Vor- und Nachname (für Anbieter)" />
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
                 <div>
-                  <label class="label" for="wizardModalContactEmail">E-Mail für Rückfragen</label>
+                  <label class="label required" for="wizardModalContactEmail">E-Mail für Rückfragen</label>
                   <input type="text" id="wizardModalContactEmail" placeholder="name@beispiel.de" />
                 </div>
                 <div>
@@ -634,12 +649,15 @@
           </div>
         </section>
       </div>
-      <div class="form-modal-footer" style="justify-content:space-between;">
+      <div class="form-modal-footer" style="justify-content:space-between;align-items:flex-start;">
         <button type="button" id="wizardModalCancelBtn" class="btn btn-ghost">Abbrechen</button>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <button type="button" id="wizardModalBackBtn" class="btn btn-secondary hidden">Zurück</button>
-          <button type="button" id="wizardModalNextBtn" class="btn btn-primary">Weiter</button>
-          <button type="button" id="wizardModalSubmitBtn" class="btn btn-primary hidden">Angebotsaufforderung versenden</button>
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-direction:column;">
+          <div style="display:flex;gap:10px;align-items:center;width:100%;">
+            <button type="button" id="wizardModalBackBtn" class="btn btn-secondary hidden">Zurück</button>
+            <button type="button" id="wizardModalNextBtn" class="btn btn-primary" style="flex:1;">Weiter</button>
+            <button type="button" id="wizardModalSubmitBtn" class="btn btn-primary hidden" style="flex:1;">Angebotsaufforderung versenden</button>
+          </div>
+          <div id="wizardValidationError" class="wizard-validation-error">Bitte füllen Sie alle Pflichtfelder aus</div>
         </div>
       </div>
     </div>
@@ -736,8 +754,8 @@
                   </div>
                   <div class="selection-actions hidden" style="gap:10px;">
                     <button class="btn btn-primary" id="gotoOfferBtn">Angebotsaufforderung erstellen <span aria-hidden="true" style="margin-left:8px">↗</span></button>
-                    <button class="btn btn-primary" id="showFormModalBtn" style="background:#547087;">2</button>
-                    <button class="btn btn-primary" id="showWizardModalBtn" style="background:#406d88;">3</button>
+                    <button class="btn btn-primary" id="showFormModalBtn" style="background:#547087;">Version 2</button>
+                    <button class="btn btn-primary" id="showWizardModalBtn" style="background:#406d88;">Version 3</button>
                   </div>
                 </div>
               </div>
@@ -928,13 +946,13 @@
           <section class="card aside-card">
             <h4>Ablauf auf einen Blick</h4>
             <div class="progress">
-              <div class="progress-step active"><span>1</span><span>Vorauswahl Anbieter</span></div>
-              <div class="progress-step"><span>2</span><span>Bedarf beschreiben</span></div>
-              <div class="progress-step"><span>3</span><span>Kontaktdaten</span></div>
-              <div class="progress-step"><span>4</span><span>Rahmenbedingungen</span></div>
-              <div class="progress-step"><span>5</span><span>Scope &amp; Systemlandschaft</span></div>
-              <div class="progress-step"><span>6</span><span>Veröffentlichung &amp; Matching</span></div>
-              <div class="progress-step"><span>7</span><span>Angebote erhalten</span></div>
+              <div class="progress-step active" data-step="1"><span>1</span><span>Vorauswahl Anbieter</span></div>
+              <div class="progress-step" data-step="2"><span>2</span><span>Bedarf beschreiben</span></div>
+              <div class="progress-step" data-step="3"><span>3</span><span>Kontaktdaten</span></div>
+              <div class="progress-step" data-step="4"><span>4</span><span>Rahmenbedingungen</span></div>
+              <div class="progress-step" data-step="5"><span>5</span><span>Scope &amp; Systemlandschaft</span></div>
+              <div class="progress-step" data-step="6"><span>6</span><span>Veröffentlichung &amp; Matching</span></div>
+              <div class="progress-step" data-step="7"><span>7</span><span>Angebote erhalten</span></div>
             </div>
           </section>
 
@@ -1200,6 +1218,7 @@
       selectionText.textContent = `${selectedIds.length} Anbieter ausgewählt`;
       renderSelectedProviders();
       updateSelectionUI();
+      persistSelectedIds();
     }
 
     function getSelectedDirectoryFilters(){
@@ -1209,7 +1228,29 @@
     }
 
     function makeChip(label){
-      return `<span class="chip">${label}</span>`;
+      return `<span class="chip readonly">${label}</span>`;
+    }
+
+    // Persist selected provider IDs so selection survives page reloads / navigation
+    const SELECTED_IDS_KEY = 'offer_selected_ids_v1';
+    function persistSelectedIds(){
+      try{
+        localStorage.setItem(SELECTED_IDS_KEY, JSON.stringify(selectedIds));
+      }catch(e){
+        // ignore localStorage errors
+      }
+    }
+    function loadSelectedIds(){
+      try{
+        const raw = localStorage.getItem(SELECTED_IDS_KEY);
+        if(!raw) return;
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)){
+          selectedIds = parsed;
+        }
+      }catch(e){
+        // ignore parse errors
+      }
     }
 
     let selectionError = false;
@@ -1241,8 +1282,8 @@
       selectedProvidersContainer.querySelectorAll('button[data-remove]').forEach(btn => {
         btn.addEventListener('click', () => {
           selectedIds = selectedIds.filter(id => id !== btn.dataset.remove);
+          updateSelectionBar();
           renderProviders();
-          renderSelectedProviders();
         });
       });
     }
@@ -1312,8 +1353,22 @@
             field.value = values.join(', ');
             autoResizeTextarea(field);
           }
+
+          if(chipsWrapper.closest('.wizard-step')?.dataset.step === '4'){
+            updateWizardStep4ChipValidation(chipsWrapper);
+          }
         });
       });
+    }
+
+    function updateWizardStep4ChipValidation(chipsWrapper){
+      const hasActive = !!chipsWrapper.querySelector('.chip.active');
+      if(hasActive){
+        chipsWrapper.classList.remove('required-missing');
+        chipsWrapper.classList.remove('chip-group-error');
+      } else {
+        chipsWrapper.classList.add('required-missing');
+      }
     }
 
     function autoResizeTextarea(textarea){
@@ -1471,6 +1526,10 @@
     const showFormModalBtn = document.getElementById('showFormModalBtn');
 
     function openFormModal(){
+      // preserve scroll position and lock background
+      _modalScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = `-${_modalScrollY}px`;
+      document.body.classList.add('modal-open');
       formModal.classList.remove('hidden');
       syncFormDataToModal();
       setupChipsInModal();
@@ -1478,6 +1537,9 @@
 
     function closeFormModal(){
       formModal.classList.add('hidden');
+      document.body.classList.remove('modal-open');
+      document.body.style.top = '';
+      window.scrollTo(0, _modalScrollY);
     }
 
     const wizardModal = document.getElementById('wizardModal');
@@ -1490,6 +1552,7 @@
     let currentWizardStep = 1;
     let wizardSuccessVisible = false;
     let wizardVisitedSteps = new Set([1]);
+    let _modalScrollY = 0;
 
     function resetWizardModalUI(){
       wizardSuccessVisible = false;
@@ -1500,6 +1563,10 @@
     }
 
     function openWizardModal(){
+      // preserve scroll position and lock background
+      _modalScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.style.top = `-${_modalScrollY}px`;
+      document.body.classList.add('modal-open');
       wizardModal.classList.remove('hidden');
       currentWizardStep = 1;
       resetWizardModalUI();
@@ -1509,6 +1576,9 @@
 
     function closeWizardModal(){
       wizardModal.classList.add('hidden');
+      document.body.classList.remove('modal-open');
+      document.body.style.top = '';
+      window.scrollTo(0, _modalScrollY);
     }
 
     function updateWizardStepUI(){
@@ -1612,6 +1682,35 @@
 
     function clearWizardErrors(){
       document.querySelectorAll('#wizardModal .field-error').forEach(el => el.classList.remove('field-error'));
+      document.querySelectorAll('#wizardModal .chips.chip-group-error').forEach(el => el.classList.remove('chip-group-error'));
+      document.querySelectorAll('#wizardModal .chips.required-missing').forEach(el => el.classList.remove('required-missing'));
+      document.querySelectorAll('#wizardModal .field-error-area').forEach(el => el.classList.remove('field-error-area'));
+      document.getElementById('wizardValidationError')?.classList.remove('show');
+    }
+
+    function markWizardFieldError(element){
+      if(!element) return;
+      if(element.classList.contains('chips')){
+        element.classList.add('chip-group-error');
+        element.classList.add('required-missing');
+        const step = element.closest('.wizard-step');
+        if(step?.dataset.step === '4'){
+          const sectionBody = element.closest('.section-body');
+          if(sectionBody){
+            sectionBody.classList.add('field-error-area');
+          }
+        }
+      } else {
+        element.classList.add('field-error');
+      }
+      element.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    function showWizardValidationError(){
+      const errorEl = document.getElementById('wizardValidationError');
+      if(errorEl){
+        errorEl.classList.add('show');
+      }
     }
 
     function updateWizardReviewScreen(){
@@ -1620,7 +1719,7 @@
       if(selected.length === 0){
         recipientsContainer.innerHTML = `<div class="inline-empty">Aktuell wurden noch keine Anbieter ausgewählt.</div>`;
       } else {
-        recipientsContainer.innerHTML = selected.map(provider => `<span class="chip">${provider.name}</span>`).join('');
+        recipientsContainer.innerHTML = selected.map(provider => `<span class="chip readonly">${provider.name}</span>`).join('');
       }
       const contactName = document.getElementById('wizardModalContactName')?.value.trim();
       const contactEmail = document.getElementById('wizardModalContactEmail')?.value.trim();
@@ -1631,12 +1730,6 @@
       } else {
         reviewContact.innerHTML = `<span class="inline-empty">Kein Ansprechpartner für Rückfragen angegeben.</span>`;
       }
-    }
-
-    function markWizardFieldError(element){
-      if(!element) return;
-      element.classList.add('field-error');
-      element.scrollIntoView({behavior:'smooth', block:'center'});
     }
 
     showWizardModalBtn.addEventListener('click', () => {
@@ -1659,6 +1752,7 @@
       clearWizardErrors();
       const invalid = validateWizardStep();
       if(invalid.length){
+        showWizardValidationError();
         invalid.forEach(field => markWizardFieldError(field.element));
         return;
       }
@@ -2021,6 +2115,8 @@
 
     setupChipInteractions();
     setupTextareaAutoResize();
+    // restore persisted directory selection before first render
+    loadSelectedIds();
     renderProviders();
     renderSelectedProviders();
     updateSelectionUI();
