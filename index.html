@@ -1304,12 +1304,13 @@
         bar.classList.add('active');
         selectionInfo.classList.remove('hidden');
         selectionControls.classList.remove('hidden');
-        selectionActions.classList.remove('hidden');
         startBtn.classList.add('hidden');
         endBtn.classList.remove('hidden');
         if(selectedIds.length > 0){
+          selectionActions.classList.remove('hidden');
           gotoBtn.classList.remove('hidden');
         } else {
+          selectionActions.classList.add('hidden');
           gotoBtn.classList.add('hidden');
         }
       } else {
@@ -1600,6 +1601,11 @@
 
     function showWizardSuccessScreen(){
       closeWizardModal();
+      selectedIds = [];
+      selectionMode = false;
+      updateSelectionBar();
+      updateSelectionUI();
+      renderProviders();
       document.getElementById('successModal').classList.remove('hidden');
       document.body.classList.add('modal-open');
     }
